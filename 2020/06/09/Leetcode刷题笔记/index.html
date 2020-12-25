@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          Leetcode刷题笔记 - DeepBlue的博客 | DeepBlue&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://kklll.github.io/2020/06/09/Leetcode刷题笔记/">
+
+    <!-- Bootstrap Core CSS -->
+    
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/hux-blog.min.css">
+
+
+    <!-- Pygments Highlight CSS -->
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">DeepBlue&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/xxmarek-piwnicki-DgdJ_0us5SE-unsplash.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#算法" title="算法">算法</a>
+                        
+                    </div>
+                    <h1>Leetcode刷题笔记</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by DeepBlue on
+                        2020-06-09
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="leetcode刷题笔记"><a href="#leetcode刷题笔记" class="headerlink" title="leetcode刷题笔记"></a>leetcode刷题笔记</h1><h2 id="计数二进制子串"><a href="#计数二进制子串" class="headerlink" title="计数二进制子串"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/count-binary-substrings/">计数二进制子串</a></h2><h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个字符串 s，计算具有相同数量0和1的非空(连续)子字符串的数量，并且这些子字符串中的所有0和所有1都是组合在一起的。</p>
+<p>重复出现的子串要计算它们出现的次数。</p>
+<p>示例1：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">输入: &quot;00110011&quot;</span></span><br><span class="line"><span class="section">输出: 6</span></span><br><span class="line"><span class="section">解释: 有6个子串具有相同数量的连续1和0：“0011”，“01”，“1100”，“10”，“0011” 和 “01”。</span></span><br><span class="line"></span><br><span class="line">请注意，一些重复出现的子串要计算它们出现的次数。</span><br><span class="line"></span><br><span class="line">另外，“00110011”不是有效的子串，因为所有的0（和1）没有组合在一起。</span><br></pre></td></tr></table></figure>
+<p>示例2：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">输入: &quot;10101&quot;</span></span><br><span class="line"><span class="section">输出: 4</span></span><br><span class="line"><span class="section">解释: 有4个子串：“10”，“01”，“10”，“01”，它们具有相同数量的连续1和0。</span></span><br></pre></td></tr></table></figure>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/count-binary-substrings">https://leetcode-cn.com/problems/count-binary-substrings</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<h3 id="解题思想"><a href="#解题思想" class="headerlink" title="解题思想"></a>解题思想</h3><p>按照题意，我们可以先将字符串整体的进行一遍扫描，例如<code>00110011</code> ,我们可以将其拆分成为<code>00</code> <code>11</code> <code>00</code> <code>11</code>（这里我们的分组依据是如果碰到两个不相同的二进制字符）</p>
+<p>将拆分后的字符串进行计数即int[] a=[2,2,2,2];那么从位置中建立一个滑动窗口，提取a[0]和a[1]中的计数值，其中a[0]=2且a[1]=2，那么这两个相邻的分组中就可以使用Math.min(a[0],a[1])中找出两个不相同的字符之间较短的长度，如例子所示，其中a[0]与a[1]都为2，那么其最小值也为2，就可以组成[01],[0011]两个解。同理a[1],a[2]中Math.min(a[1],a[2])也为2，将其相加，且重复上述过程，既可以得到最终的答案，即:2+2+2=6，可以通过例子2进行检验。</p>
+<h3 id="解题代码"><a href="#解题代码" class="headerlink" title="解题代码"></a>解题代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solotion</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">countBinarySubstrings</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//边界判断</span></span><br><span class="line">        <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//当前位置</span></span><br><span class="line">        <span class="keyword">int</span> now = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//当前位置即count=1</span></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">//存储count的list</span></span><br><span class="line">        List&lt;Integer&gt; counts = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="comment">//结束条件</span></span><br><span class="line">        <span class="keyword">while</span> (now &lt; s.length()) &#123;</span><br><span class="line">            <span class="comment">//判断是否越界 当前元素与下一个元素是否相等</span></span><br><span class="line">            <span class="keyword">if</span> (now + <span class="number">1</span> &lt; s.length() &amp;&amp; s.charAt(now) == s.charAt(now + <span class="number">1</span>)) &#123;</span><br><span class="line">                count++;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//如果不相等的话，就需要将该count值进行存储</span></span><br><span class="line">                counts.add(count);</span><br><span class="line">                count = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            now++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//获取结果</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; counts.size() - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            res += Math.min(counts.get(i), counts.get(i + <span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="被围绕的区域"><a href="#被围绕的区域" class="headerlink" title="被围绕的区域"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/surrounded-regions/">被围绕的区域</a></h2><h3 id="题目描述-1"><a href="#题目描述-1" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个二维的矩阵，包含 <code>&#39;X&#39;</code> 和 <code>&#39;O&#39;</code>（<strong>字母 O</strong>）。</p>
+<p>找到所有被 <code>&#39;X&#39;</code> 围绕的区域，并将这些区域里所有的 <code>&#39;O&#39;</code> 用 <code>&#39;X&#39;</code> 填充。</p>
+<p>示例：</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> O O <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> <span class="meta">X</span> O <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> O <span class="meta">X</span> <span class="meta">X</span></span><br></pre></td></tr></table></figure>
+<p>运行你的函数后，矩阵变为：</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> O <span class="meta">X</span> <span class="meta">X</span></span><br></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>被围绕的区间不会存在于边界上</code>，换句话说，<code>任何边界上的 &#39;O&#39; 都不会被填充为 &#39;X&#39;</code>。 <code>任何不在边界上，或不与边界上的 &#39;O&#39; 相连的 &#39;O&#39; 最终都会被填充为 &#39;X&#39;</code>。如果两个元素在水平或垂直方向相邻，则称它们是“相连”的。</p>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/surrounded-regions">https://leetcode-cn.com/problems/surrounded-regions</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<h3 id="解题思想-1"><a href="#解题思想-1" class="headerlink" title="解题思想"></a>解题思想</h3><p>通过题目描述我们首先差不多确定了这就是一个图的DFS或者BFS的题目，可以使用DFS或者使用BFS进行解答，解题思路是相同的。我们的目标是将其中的被X包围的O转换成为’X’将同时保持不连通的O不变，那么我们就可以从边界中的O出发进行DFS，然后将扫描出来的与外界连通的O转换成其他的字符，然后我们在通过一次遍历找到其中的被替换成特殊字符的元素，以及O元素，将O元素转换成为X，将特殊字符转换成为O，即得到解，如图所示。</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span>             <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span>          <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span>       <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> O O O <span class="meta">X</span>             <span class="meta">X</span> O O O <span class="meta">X</span>          <span class="meta">X</span> O O O <span class="meta">X</span>       <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> O O <span class="meta">X</span> <span class="meta">X</span>     =&gt;      <span class="meta">X</span> O O <span class="meta">X</span> <span class="meta">X</span>      =&gt;  <span class="meta">X</span> O O <span class="meta">X</span> <span class="meta">X</span>   =&gt;  <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span></span><br><span class="line"><span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> O O             <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> # #          <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> O O       <span class="meta">X</span> <span class="meta">X</span> <span class="meta">X</span> O O</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="解题代码-1"><a href="#解题代码-1" class="headerlink" title="解题代码"></a>解题代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.kklll.leetcode.algorithm;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> DeepBlue</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2020/8/11 15:52</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solotion</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">solve</span><span class="params">(<span class="keyword">char</span>[][] board)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//边界条件判断</span></span><br><span class="line">        <span class="keyword">if</span> (board == <span class="keyword">null</span> || board.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> line = board.length;</span><br><span class="line">        <span class="keyword">int</span> column = board[<span class="number">0</span>].length;</span><br><span class="line">        <span class="comment">//从四个边进行考虑，找出其中为O的节点，进行DFS</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; line; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; column; j++) &#123;</span><br><span class="line">                <span class="keyword">boolean</span> edge = i == <span class="number">0</span> || i == line - <span class="number">1</span> || j == <span class="number">0</span> || j == column - <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">if</span> (edge &amp;&amp; board[i][j] == <span class="string">&#x27;O&#x27;</span>) &#123;</span><br><span class="line">                    dfs(board, i, j);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//进行扫描，查找其中的，此时被更改为#的即为原来连通的O，</span></span><br><span class="line">        <span class="comment">//那么应该被修改为O，否则的话原先的O即为被包围的元素，应该被替换为X</span></span><br><span class="line">        <span class="comment">//然后得到的答案就是答案</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; line; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; column; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][j] == <span class="string">&#x27;O&#x27;</span>) &#123;</span><br><span class="line">                    board[i][j] = <span class="string">&#x27;X&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (board[i][j] == <span class="string">&#x27;#&#x27;</span>) &#123;</span><br><span class="line">                    board[i][j] = <span class="string">&#x27;O&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * DFS中的内容就是将与边界连通的O找出来，并且将找出来的O使用其他的字符进行一个替换，</span></span><br><span class="line"><span class="comment">     * 那么替换后的字符表示的内容即应该是题目中所要的没有包围的O的部分，然后我们就可以把这个数组进行遍历了</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> board</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> x</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> y</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">char</span>[][] board, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span> || x &gt;= board.length || y &lt; <span class="number">0</span> || y &gt;= board[<span class="number">0</span>].length || board[x][y] == <span class="string">&#x27;X&#x27;</span> || board[x][y] == <span class="string">&#x27;#&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        board[x][y] = <span class="string">&#x27;#&#x27;</span>;</span><br><span class="line">        dfs(board, x + <span class="number">1</span>, y);</span><br><span class="line">        dfs(board, x - <span class="number">1</span>, y);</span><br><span class="line">        dfs(board, x, y + <span class="number">1</span>);</span><br><span class="line">        dfs(board, x, y - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="200-岛屿数量"><a href="#200-岛屿数量" class="headerlink" title="200. 岛屿数量"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/number-of-islands/">200. 岛屿数量</a></h2><h3 id="题目描述-2"><a href="#题目描述-2" class="headerlink" title="题目描述"></a>题目描述</h3><p>给你一个由 ‘1’（陆地）和 ‘0’（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。</p>
+<p><strong>示例 1:</strong></p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">输入:</span><br><span class="line">[</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>]</span><br><span class="line">]</span><br><span class="line">输出: <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><strong>示例 2:</strong></p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入:</span><br><span class="line">[</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>],</span><br><span class="line">[<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;0&#x27;</span>,<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;1&#x27;</span>]</span><br><span class="line">]</span><br><span class="line">输出: <span class="number">3</span></span><br><span class="line">解释: 每座岛屿只能由水平和/或竖直方向上相邻的陆地连接而成。</span><br></pre></td></tr></table></figure>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/number-of-islands">https://leetcode-cn.com/problems/number-of-islands</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<h3 id="解题思想-2"><a href="#解题思想-2" class="headerlink" title="解题思想"></a>解题思想</h3><p>这道题的解题思路与上题是类似的，都可以使用BFS或者DFS进行解答，我们可以现在二维数组中找到一个岛屿的一部分，然后对岛屿的数量进行加1，然后进行BFS，将这个岛屿的所有陆地变成海洋（即将岛屿内的<code>&#39;1&#39;</code>赋值为<code>&#39;0&#39;</code>），然后重复上述过程到所有的元素都被遍历一遍，那么得到的结果即为岛屿的数量。</p>
+<h3 id="解题代码-2"><a href="#解题代码-2" class="headerlink" title="解题代码"></a>解题代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">numIslands</span><span class="params">(<span class="keyword">char</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(grid==<span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="comment">//遍历数组找到岛屿的一部分</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;grid.length;i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;grid[<span class="number">0</span>].length;j++)&#123;</span><br><span class="line">                <span class="comment">//确认为岛屿的一部分，则从该坐标进行DFS</span></span><br><span class="line">                <span class="keyword">if</span>(grid[i][j]==<span class="string">&#x27;1&#x27;</span>)&#123;</span><br><span class="line">                    count++;</span><br><span class="line">                    dfs(grid,i,j);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//寻找本岛屿内的其他元素，并将其变成海洋</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">char</span>[][] grid,<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(i&lt;<span class="number">0</span>||i&gt;=grid.length||j&lt;<span class="number">0</span>||j&gt;=grid[<span class="number">0</span>].length||grid[i][j]==<span class="string">&#x27;0&#x27;</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        grid[i][j]=<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        dfs(grid,i+<span class="number">1</span>,j);</span><br><span class="line">        dfs(grid,i-<span class="number">1</span>,j);</span><br><span class="line">        dfs(grid,i,j+<span class="number">1</span>);</span><br><span class="line">        dfs(grid,i,j-<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="133-克隆图"><a href="#133-克隆图" class="headerlink" title="133. 克隆图"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/clone-graph/">133. 克隆图</a></h2><h3 id="题目描述-3"><a href="#题目描述-3" class="headerlink" title="题目描述"></a>题目描述</h3><p>给你无向 连通 图中一个节点的引用，请你返回该图的 深拷贝（克隆）。</p>
+<p>图中的每个节点都包含它的值 val（int） 和其邻居的列表（list[Node]）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">public</span> List&lt;Node&gt; neighbors;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试用例格式：</p>
+<p>简单起见，每个节点的值都和它的索引相同。例如，第一个节点值为 1（val = 1），第二个节点值为 2（val = 2），以此类推。该图在测试用例中使用邻接列表表示。</p>
+<p>邻接列表 是用于表示有限图的无序列表的集合。每个列表都描述了图中节点的邻居集。</p>
+<p>给定节点将始终是图中的第一个节点（值为 1）。你必须将 给定节点的拷贝 作为对克隆图的引用返回。</p>
+<p>例子：</p>
+<img src="https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/02/01/133_clone_graph_question.png" style="zoom: 33%;" />
+
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">输入：adjList = [[2,4],[1,3],[2,4],[1,3]]</span><br><span class="line">输出：[[2,4],[1,3],[2,4],[1,3]]</span><br><span class="line">解释：</span><br><span class="line">图中有<span class="number"> 4 </span>个节点。</span><br><span class="line">节点<span class="number"> 1 </span>的值是 1，它有两个邻居：节点<span class="number"> 2 </span>和<span class="number"> 4 </span>。</span><br><span class="line">节点<span class="number"> 2 </span>的值是 2，它有两个邻居：节点<span class="number"> 1 </span>和<span class="number"> 3 </span>。</span><br><span class="line">节点<span class="number"> 3 </span>的值是 3，它有两个邻居：节点<span class="number"> 2 </span>和<span class="number"> 4 </span>。</span><br><span class="line">节点<span class="number"> 4 </span>的值是 4，它有两个邻居：节点<span class="number"> 1 </span>和<span class="number"> 3 </span>。</span><br></pre></td></tr></table></figure>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/clone-graph">https://leetcode-cn.com/problems/clone-graph</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<h3 id="解题思想-3"><a href="#解题思想-3" class="headerlink" title="解题思想"></a>解题思想</h3><p>这道题看起来很难懂，但是仔细读题发现就做了一件事，就是将元素进行深拷贝，所谓<code>深拷贝</code>就是<code>被拷贝后的对象内的元素是独立在内存中的，而不是其他对象的引用</code>，那我们就要使用<code>new</code>关键字创建各个节点，并把他们保存，这样的话，就可以得到最终的答案，这道题可以使用<code>BFS</code>或者<code>DFS</code>进行解答，我们获得节点后将该节点的克隆对象存储到map集合里面，然后通过源对象的<code>neighbors</code>元素创建新<code>neighbors</code>节点，重复上述过程，直到所有的对象都被遍历完成一遍即终止。</p>
+<h3 id="解题代码-3"><a href="#解题代码-3" class="headerlink" title="解题代码"></a>解题代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Node <span class="title">cloneGraph</span><span class="params">(Node node)</span> </span>&#123;</span><br><span class="line">        Map&lt;Node,Node&gt; map=<span class="keyword">new</span> HashMap();</span><br><span class="line">        <span class="keyword">return</span> dfs(node,map);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Node <span class="title">dfs</span><span class="params">(Node node,Map&lt;Node,Node&gt; map)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(node==<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(map.containsKey(node))&#123;</span><br><span class="line">            <span class="keyword">return</span> map.get(node);</span><br><span class="line">        &#125;</span><br><span class="line">        Node clone=<span class="keyword">new</span> Node(node.val,<span class="keyword">new</span> ArrayList&lt;Node&gt;());</span><br><span class="line">        map.put(node,clone);</span><br><span class="line">        <span class="keyword">for</span>(Node n: node.neighbors)&#123;</span><br><span class="line">            clone.neighbors.add(dfs(n,map));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> clone;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2020/07/09/集合框架复习/" data-toggle="tooltip" data-placement="top" title="JAVA集合框架">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#算法" title="算法">算法</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://39.106.168.39/" target="_blank">JuneBlog</a></li>
+                    
+                        <li><a href="https://blog.fivezha.cn/" target="_blank">异国迷路的十字路口</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "deepblue-blog";
+    var disqus_identifier = "https://kklll.github.io/2020/06/09/Leetcode%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/";
+    var disqus_url = "https://kklll.github.io/2020/06/09/Leetcode%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/kklll">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; DeepBlue&#39;s Blog 2020 
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a target="_blank" rel="noopener" href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+
+<script src="/js/jquery.min.js"></script>
+
+
+<!-- Bootstrap Core JavaScript -->
+
+<script src="/js/bootstrap.min.js"></script>
+
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/js/hux-blog.min.js"></script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://kklll.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

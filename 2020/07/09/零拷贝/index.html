@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          Linux中的零拷贝 - DeepBlue的博客 | DeepBlue&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://kklll.github.io/2020/07/09/零拷贝/">
+
+    <!-- Bootstrap Core CSS -->
+    
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/hux-blog.min.css">
+
+
+    <!-- Pygments Highlight CSS -->
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">DeepBlue&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/xxmarek-piwnicki-DgdJ_0us5SE-unsplash.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#操作系统" title="操作系统">操作系统</a>
+                        
+                    </div>
+                    <h1>Linux中的零拷贝</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by DeepBlue on
+                        2020-07-09
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><strong>什么是零拷贝？</strong></p>
+<p>零拷贝技术，就是避免将数据从一块存储拷贝到另外一块存储的技术，从而节省拷贝带来的CPU开销，零拷贝并不是将拷贝操作完全消除掉。</p>
+<ul>
+<li><strong>传统拷贝</strong>：这个没什么说的，就是平时我们一般都会用到的拷贝方式；</li>
+<li><strong>MMAP方式的拷贝</strong>：当应用程序不需要对数据进行访问时，则可以避免将数据从内核空间拷贝到用户空间；</li>
+<li><strong>SendFile方式的拷贝</strong>：写时拷贝技术，数据不需要提前拷贝，而是当需要修改的时候再进行部分拷贝。</li>
+</ul>
+<h4 id="传统拷贝"><a href="#传统拷贝" class="headerlink" title="传统拷贝"></a>传统拷贝</h4><p>传统的Linux系统中，标准的I/O接口（例如read，write）都是基于数据拷贝操作的，即是I/O操作会导致数据在内核地址空间的缓冲区和用户地址空间的缓冲区之间进行拷贝，所以标准I/O也被称作缓存I/O。这样做的好处是，如果所请求的数据已经存放在内核的高速缓冲存储器中，那么就可以减少实际的I/O操作，但坏处就是数据拷贝的过程，会导致CPU开销。</p>
+<blockquote>
+<p><strong>DMA（Direct Memory Access）</strong>：直接存储器访问。DMA是一种无需CPU的参与，让外设和系统内存之间进行双向数据传输的硬件机制。当DMA完成数据的传送之后，使用系统中断提醒CPU，然后CPU就可以高效的处理数据。使用DMA可以使系统CPU从实际的I/O数据传输过程中摆脱出来，从而大大提高系统的吞吐率。</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011212100.png" alt="1"></p>
+<p>我们可以看到需要经历四个阶段，2次DMA，2次CPU中断，总共四次拷贝，有四次上下文切换，并且会占用两次CPU。</p>
+<ol>
+<li>CPU发指令给I/O设备的DMA，由DMA将我们磁盘中的数据传输到内核空间的内核buffer。</li>
+<li>第二阶段触发我们的CPU中断，CPU开始将将数据从kernel buffer拷贝至我们的应用缓存</li>
+<li>CPU将数据从应用缓存拷贝到内核中的socket buffer.</li>
+<li>DMA将数据从socket buffer中的数据拷贝到网卡缓存。</li>
+</ol>
+<p><strong>优点</strong>:开发成本低，适合一些对性能要求不高的，比如一些什么管理系统这种我觉得就应该够了</p>
+<p><strong>缺点</strong>:多次上下文切换，占用多次CPU，性能比较低。</p>
+<h4 id="MMAP方式的拷贝"><a href="#MMAP方式的拷贝" class="headerlink" title="MMAP方式的拷贝"></a>MMAP方式的拷贝</h4><p>我们提到用户态的进程是不能随意操作内核地址空间的，而且mmap也没有提供用户进程直接操作内核地址空间的能力，而是通过内存映射的机制，把内核中的部分内存空间映射到用户空间的内存，用户空间和内核空间共享一块相同的物理内存，从而提供用户进程对内存直接访问的能力。</p>
+<p>有了mmap的支持，数据从文件中读取到内核空间之后，就不会再拷贝到用户空间，当调用socket的write时，数据会直接从内核缓存中直接拷贝到Socket的缓冲区中，避免了在用户空间中多中转一次。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011213802.png" alt="3"></p>
+<p>我们可以看到，MMP与传统的拷贝方式相比，mmp减少了数据在用户空间进行一次拷贝mmap虽然能减少一次数据拷贝，但是还是需要4次上下文切换，拷贝的话需要执行三次，即两次DMA拷贝，一次CPU的拷贝：</p>
+<ul>
+<li><p>用户进程通过 mmap() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</p>
+</li>
+<li><p>将用户进程的内核空间的读缓冲区（read buffer）与用户空间的缓存区（user buffer）进行内存地址映射。</p>
+</li>
+<li><p>CPU利用DMA控制器将数据从主存或硬盘拷贝到内核空间（kernel space）的读缓冲区（read buffer）。</p>
+</li>
+<li><p>上下文从内核态（kernel space）切换回用户态（user space），mmap 系统调用执行返回。</p>
+</li>
+<li><p>用户进程通过 write() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</p>
+</li>
+<li><p>CPU将读缓冲区（read buffer）中的数据拷贝到的网络缓冲区（socket buffer）。</p>
+</li>
+<li><p>CPU利用DMA控制器将数据从网络缓冲区（socket buffer）拷贝到网卡进行数据传输。</p>
+</li>
+<li><p>上下文从内核态（kernel space）切换回用户态（user space），write 系统调用执行返回。</p>
+</li>
+</ul>
+<h4 id="SendFile方式的拷贝"><a href="#SendFile方式的拷贝" class="headerlink" title="SendFile方式的拷贝"></a>SendFile方式的拷贝</h4><p>sendfile内核调用是在Linux 2.1版本开始引入的，主要功能是在内核态中，在两个文件描述符之间传递数据，避免了用户空间和内核空间之间的数据拷贝操作。</p>
+<p>使用sendfile时，数据中转与mmap类似，不经过用户空间，但是由于sendfile全程在内核态执行，因此只需要2次上下文切换：</p>
+<ul>
+<li>调用sendfile将文件内容通过socket发送出去时候，从用户态切换到内核态；</li>
+<li>任务完成之后，切换回来。</li>
+</ul>
+<p>在Linux 2.4版本中，对sendfile进一步做了优化，之前从“文件数据缓存”到“socket缓存”时候，也需要一次拷贝，优化之后，“socket缓存”中只存储要发送的数据在“文件数据缓存”中的位置和偏移量，在实际发送时，根据位置和偏移量直接将“文件数据缓存”中的数据拷贝到网卡设备中，又省掉了一次拷贝操作。</p>
+<p>基于 sendfile和DMA系统调用的零拷贝方式，整个拷贝过程会发生<strong>2 次上下文切换、0 次 CPU 拷贝以及 2 次 DMA 拷贝</strong>用户程序读写数据的流程如下：</p>
+<ol>
+<li>用户进程通过 sendfile() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</li>
+<li>CPU 利用 DMA 控制器将数据从主存或硬盘拷贝到内核空间（kernel space）的读缓冲区（read buffer）。</li>
+<li>CPU 把读缓冲区（read buffer）的文件描述符（file descriptor）和数据长度拷贝到网络缓冲区（socket buffer）。</li>
+<li>基于已拷贝的文件描述符（file descriptor）和数据长度，CPU 利用 DMA 控制器的 gather/scatter 操作直接批量地将数据从内核的读缓冲区（read buffer）拷贝到网卡进行数据传输。</li>
+<li>上下文从内核态（kernel space）切换回用户态（user space），sendfile 系统调用执行返回。</li>
+</ol>
+<p>但是使用这种方式也是有缺点的，就是我们再拷贝的过程中<strong>不能对数据进行任何的修改</strong>，如果我们对数据进行修改后再进行拷贝的话这种方式就行不通了。如果我们要对文件进行修改的话就必须使用传统的拷贝方式了。</p>
+<p>因为基于SendFile的这种特性，零拷贝技术被用在Nginx等软件上，提升了很大的效率，比如我们使用nginx的时候对静态资源的读写就会用到零拷贝，大大增加了我们服务器的性能。</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2020/07/09/红黑树/" data-toggle="tooltip" data-placement="top" title="回溯算法复习">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                        <li class="next">
+                            <a href="/2020/07/09/JMM/" data-toggle="tooltip" data-placement="top" title="Java内存模型-JMM">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#操作系统" title="操作系统">操作系统</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://39.106.168.39/" target="_blank">JuneBlog</a></li>
+                    
+                        <li><a href="https://blog.fivezha.cn/" target="_blank">异国迷路的十字路口</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "deepblue-blog";
+    var disqus_identifier = "https://kklll.github.io/2020/07/09/%E9%9B%B6%E6%8B%B7%E8%B4%9D/";
+    var disqus_url = "https://kklll.github.io/2020/07/09/%E9%9B%B6%E6%8B%B7%E8%B4%9D/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/kklll">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; DeepBlue&#39;s Blog 2020 
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a target="_blank" rel="noopener" href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+
+<script src="/js/jquery.min.js"></script>
+
+
+<!-- Bootstrap Core JavaScript -->
+
+<script src="/js/bootstrap.min.js"></script>
+
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/js/hux-blog.min.js"></script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://kklll.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

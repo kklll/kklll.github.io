@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="https://kklll.github.io/2020/07/09/红黑树/">
+    <link rel="canonical" href="https://kklll.github.io/2020/07/09/回溯算法复习/">
 
     <!-- Bootstrap Core CSS -->
     
@@ -201,7 +201,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <blockquote>
+                <h2 id="回溯算法复习"><a href="#回溯算法复习" class="headerlink" title="回溯算法复习"></a>回溯算法复习</h2><blockquote>
 <p>题目来源：力扣</p>
 </blockquote>
 <h3 id="39-组合总和"><a href="#39-组合总和" class="headerlink" title="39. 组合总和"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/combination-sum/">39. 组合总和</a></h3><h4 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h4><blockquote>
@@ -280,6 +280,7 @@
 <h4 id="解题思想-5"><a href="#解题思想-5" class="headerlink" title="解题思想"></a>解题思想</h4><p>这道题同样也是用了回溯算法，和上面的组合一样，我们可以将其拆分成从<code>0到length-1</code>长度的数组求其组合，最后得到的答案就是本题的答案。</p>
 <h4 id="解题代码-5"><a href="#解题代码-5" class="headerlink" title="解题代码"></a>解题代码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; subsets(<span class="keyword">int</span>[] nums) &#123;</span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; result=<span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=nums.length;i++)&#123;</span><br><span class="line">            dfs(nums,i,<span class="keyword">new</span> ArrayList&lt;Integer&gt;(),result,<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[]nums,<span class="keyword">int</span> count,ArrayList&lt;Integer&gt; path,List&lt;List&lt;Integer&gt;&gt; result,<span class="keyword">int</span> begin)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(path.size() == count)&#123;</span><br><span class="line">            result.add(<span class="keyword">new</span> ArrayList&lt;Integer&gt;(path));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(path.size() &gt; count)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=begin;i&lt;nums.length;i++)&#123;</span><br><span class="line">            path.add(nums[i]);</span><br><span class="line">            dfs(nums,count,path,result,i+<span class="number">1</span>);</span><br><span class="line">            path.remove((<span class="keyword">int</span>)path.size()-<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+
                 <hr>
 
                 
@@ -287,12 +288,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2020/07/09/排序/" data-toggle="tooltip" data-placement="top" title="排序算法复习">&larr; Previous Post</a>
+                            <a href="/2020/07/09/mysql中的log/" data-toggle="tooltip" data-placement="top" title="Mysql中的Log">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/2020/07/09/零拷贝/" data-toggle="tooltip" data-placement="top" title="Linux中的零拷贝">Next Post &rarr;</a>
+                            <a href="/2020/07/09/排序/" data-toggle="tooltip" data-placement="top" title="排序算法复习">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -361,8 +362,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "deepblue-blog";
-    var disqus_identifier = "https://kklll.github.io/2020/07/09/%E7%BA%A2%E9%BB%91%E6%A0%91/";
-    var disqus_url = "https://kklll.github.io/2020/07/09/%E7%BA%A2%E9%BB%91%E6%A0%91/";
+    var disqus_identifier = "https://kklll.github.io/2020/07/09/%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95%E5%A4%8D%E4%B9%A0/";
+    var disqus_url = "https://kklll.github.io/2020/07/09/%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95%E5%A4%8D%E4%B9%A0/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

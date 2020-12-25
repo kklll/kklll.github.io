@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          Dubbo入门学习 - DeepBlue的博客 | DeepBlue&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://kklll.github.io/2020/07/09/Dubbo/">
+
+    <!-- Bootstrap Core CSS -->
+    
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/hux-blog.min.css">
+
+
+    <!-- Pygments Highlight CSS -->
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">DeepBlue&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/xxmarek-piwnicki-DgdJ_0us5SE-unsplash.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#Java" title="Java">Java</a>
+                        
+                          <a class="tag" href="/tags/#RPC" title="RPC">RPC</a>
+                        
+                    </div>
+                    <h1>Dubbo入门学习</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by DeepBlue on
+                        2020-07-09
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h2 id="Dubbo入门"><a href="#Dubbo入门" class="headerlink" title="Dubbo入门"></a>Dubbo入门</h2><h3 id="什么是Dubbo"><a href="#什么是Dubbo" class="headerlink" title="什么是Dubbo"></a>什么是Dubbo</h3><p>Dubbo 是一款高性能 Java RPC 架构。它实现了面向接口代理的<strong>RPC 调用</strong>，<strong>服务注册和发现</strong>，<strong>负载均衡</strong>，容错，扩展性等等功能。</p>
+<p>其实说明白了就是一个远程过程调用的框架（除此之外增加了一些常用的功能），那么什么是远程过程调用呢？通俗来说以前的时候我们在自己本机上写代码的时候，我们调用了sayHello()这个方法，然后计算机就去执行这个函数，这是本地函数调用，那么同理远程过程调用是什么意思呢？就是现在虽然也是一个sayHello()这个方法，我们不在本机上调用了，我们去找<strong>不在本地计算机上的另外一台计算机上进行函数的执行，然后让他把执行的结果给我发过来，这样的过程就是远程过程调用</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/7632302-ca0ba3118f4ef4fb.png" alt="img"></p>
+<p><strong>那么有同学就会问了我就在本地调用方法不好吗，为什么非要让别的计算机去完成这个操作呢？</strong></p>
+<p>其实要解决这个疑问，我们就要从服务架构的的变化说起了，也就是为什么我们要用RPC。</p>
+<h3 id="为什么要用RPC"><a href="#为什么要用RPC" class="headerlink" title="为什么要用RPC"></a>为什么要用RPC</h3><p>这个要从服务架构的变化说起来：</p>
+<p><strong>单一应用服务架构</strong>，这也是我们平时用的最多的架构，比如平时写个xx管理系统，等QPS很少的系统，因为用户很少，单机服务就好使了。</p>
+<p><strong>多服务架构</strong>，到后来我们发现我们的服务有点扛不住了，我们可能去提高我们应用程序的QPS了，这个时候我们容易想到的方法就是再加一台服务器呗，然后把原来服务器上跑的服务原版复刻下来到这个服务器上，然后来个nginx搞个负载均衡就ok了。</p>
+<p>再到后来我们发现这种堆叠服务器来实现也有很多的问题，如果多个服务器使用的是同一个数据库，那么这个数据库压力就会非常的大，除此之外还有很多的缺点，比如：每次部署要把整个应用程序全量的部署上去，这显然是不好的，如果发生系统的更改的话，那么这些系统需要全部的下线-&gt;修改-&gt;上线，会造成服务停止。</p>
+<p><strong>微服务架构</strong> ：随之我们出现了微服务的架构，这种架构可以使我们对一个大型的服务进行拆分，比如把电商服务拆分成为订单服务，登录服务，物流服务等部分，如果哪个服务需求量增加，我们只需要增加对应服务的服务器数量就可以了，资源分配更加的合理。</p>
+<p>随着这种分布式微服务架构的发展，我们又遇到了新的问题，那就是每个服务模块相互独立，但是在<strong>一些业务逻辑的处理是可能是需要相互的进行通信</strong>，比如物流服务需要订单服务的订单数据，这时候我们就需要使用RPC。</p>
+<p><strong>流量计算架构</strong> 当服务越来越多时，容量评估变得困难，小规模的服务也经常导致资源浪费。为了解决这些问题，应该添加一个调度中心来管理基于流量的集群容量，并提高集群的利用率。此时，用于提高机器利用率的资源调度和治理中心（SOA）是关键。</p>
+<h3 id="为什么用Dubbo"><a href="#为什么用Dubbo" class="headerlink" title="为什么用Dubbo"></a>为什么用Dubbo</h3><ol>
+<li><p>透明化的远程方法调用，就像调用本地方法一样调用远程方法，只需简单配置，没有任何API侵入。    </p>
+</li>
+<li><p>软负载均衡及容错机制，可在内网替代硬件负载均衡器，降低成本，减少单点。</p>
+</li>
+<li><p>服务自动注册与发现，不再需要写死服务提供方地址，注册中心基于接口名查询服务提供者的IP地址，并且能够平滑添加或删除服务提供者。</p>
+</li>
+</ol>
+<h3 id="Dubbo的架构"><a href="#Dubbo的架构" class="headerlink" title="Dubbo的架构"></a>Dubbo的架构</h3><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201218191511926.png" alt="image-20201218191511926"></p>
+<p><strong>角色</strong></p>
+<ul>
+<li>Provider: 暴露服务的服务提供方。</li>
+<li>Consumer: 调用远程服务的服务消费方。</li>
+<li>Registry: 服务注册与发现的注册中心。</li>
+<li>Monitor: 统计服务的调用次调和调用时间的监控中心。</li>
+<li>Container: 服务运行容器。</li>
+</ul>
+<p><strong>调用关系</strong></p>
+<ol>
+<li><p>服务提供者在启动时，向注册中心注册自己提供的服务。</p>
+</li>
+<li><p>服务消费者在启动时，向注册中心订阅自己所需的服务。</p>
+</li>
+<li><p>注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。</p>
+</li>
+<li><p>服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。</p>
+</li>
+<li><p>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。</p>
+</li>
+</ol>
+<h3 id="How-to-Use"><a href="#How-to-Use" class="headerlink" title="How to Use"></a>How to Use</h3><p>我们可以看到注册中心在RPC调用中扮演着很重要的作用，他记录了哪些消费者提供了哪些接口可以被消费者调用，还有哪些服务发生了变更，是Dubbo框架中的重要组成部分。</p>
+<p>那么我们就需要自己搭建一个注册中心，Dubbo官方提供了<code>Multicast</code> <code>zookeeper</code> <code>Nacos</code> <code>Redis</code> <code>Simple 注册中心</code>等注册中心，但是官方建议使用<code>zookeeper</code>作为dubbo的注册中心。我们可以使用zookeeper的docker镜像进行环境的搭建，减少一些配置的操作。docker地址：<a target="_blank" rel="noopener" href="https://hub.docker.com/_/zookeeper">https://hub.docker.com/_/zookeeper</a> 或者使用docker-compose进行搭建。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3.1&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zoo1:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">zoo1</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ZOO_MY_ID:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">ZOO_SERVERS:</span> <span class="string">server.1=0.0.0.0:2888:3888;2181</span> <span class="string">server.2=zoo2:2888:3888;2181</span> <span class="string">server.3=zoo3:2888:3888;2181</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">zoo2:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">zoo2</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2182</span><span class="string">:2181</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ZOO_MY_ID:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">ZOO_SERVERS:</span> <span class="string">server.1=zoo1:2888:3888;2181</span> <span class="string">server.2=0.0.0.0:2888:3888;2181</span> <span class="string">server.3=zoo3:2888:3888;2181</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">zoo3:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">zoo3</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2183</span><span class="string">:2181</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ZOO_MY_ID:</span> <span class="number">3</span></span><br><span class="line">      <span class="attr">ZOO_SERVERS:</span> <span class="string">server.1=zoo1:2888:3888;2181</span> <span class="string">server.2=zoo2:2888:3888;2181</span> <span class="string">server.3=0.0.0.0:2888:3888;2181</span></span><br></pre></td></tr></table></figure>
+<p>如果不想搭建注册系统的集群，我们可以在安装监视器的时候使用docker-compose进行安装。</p>
+<p>如果不想搭建注册系统的集群，我们可以在安装监视器的时候使用docker-compose进行安装。docker-admin镜像地址：</p>
+<p><a target="_blank" rel="noopener" href="https://hub.docker.com/r/apache/dubbo-admin">https://hub.docker.com/r/apache/dubbo-admin</a></p>
+<p>docker-compose.yml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">  <span class="attr">admin:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">apache/dubbo-admin</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8080</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.config-center=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.metadata-report.address=zookeeper://zookeeper:2181</span></span><br></pre></td></tr></table></figure>
+<p>笔者这里使用docker-compose进行启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose -f ./docker-compsoe.yml up -d</span><br></pre></td></tr></table></figure>
+<p>服务启动后我们可以访问8080端口查看admin界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20200814202645562.png" alt="image-20200814202645562"></p>
+<p>看到看到管理界面之后我们需要编写服务的提供者，笔者这里是使用的springboot进行开发，我们新建一个springboot项目，然需要导入dubbo的jar包。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.dubbo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>上面的两个jar包，其中<code>curator-recipes</code>是操作zookeeper的jar包，因为我们使用的是zookeeper作为注册中心，所以必须导入这个jar包，第二个jar包就是我们的dubbo的springboot的jar包，引入这个jar包之后，我们还需要新建一个项目，项目中存储公共的接口，这也是dubbo建议我们去做的，因为将公共接口暴露出去的话我们就可以在消费者这边看到哪些接口包含哪些方法。</p>
+<p>这里我们在公共接口的项目中写入这个接口，其中有一个initOrder的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">initOrder</span><span class="params">(String username)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="服务提供者"><a href="#服务提供者" class="headerlink" title="服务提供者"></a>服务提供者</h3><p>服务提供者，就是真正实现业务的一个对象，服务提供者将服务提供出去，那么消费者就可以消费服务提供者所提供的服务。在这里我们可以导入公共API的项目，从而进行实现。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.kklll.study<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>此外我们还需要配置dubbo的一些配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">dubbo.application.name</span>=<span class="string">order-sevice # 服务的名称</span></span><br><span class="line"><span class="meta">dubbo.registry.address</span>=<span class="string">your registry ip :2181 # 注册中心的地址以及端口</span></span><br><span class="line"><span class="meta">dubbo.registry.protocol</span>=<span class="string">zookeeper  # 注册协议，我们使用的是zookeeper进行注册所以注册协议就写zookeeper</span></span><br><span class="line"><span class="meta">dubbo.protocol.name</span>=<span class="string">dubbo  # 使用的协议，dubbo也支持其他协议，详情请查看官方文档https://dubbo.apache.org/zh-cn/docs/user/references/protocol/introduction.html</span></span><br><span class="line"><span class="meta">dubbo.protocol.port</span>=<span class="string">20880 # 协议端口号</span></span><br><span class="line"><span class="meta">dubbo.monitor.protocol</span>=<span class="string">registry  # 如果为registry则表明从注册中心发现监视中心，否则直接连接监视中心</span></span><br></pre></td></tr></table></figure>
+<p>此外我们作为服务的提供者，我们需要实现公共接口的方法，以便于消费者进行调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@DubboService</span> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title">OrderService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">initOrder</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;服务提供者被调用&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;Hello &quot;</span>+username);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello &quot;</span>+username;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>@DubboService</code>来暴露出我们的服务，这个服务的实现将会被注册中心所感知到，便于消费者进行服务的调用。</p>
+<p>随后我们启动provider的服务即可，这时候再看我们的dubbo-admin的面板上就会出现这个接口的信息。</p>
+<h3 id="服务消费者"><a href="#服务消费者" class="headerlink" title="服务消费者"></a>服务消费者</h3><p>作为服务消费者，我们也必须连接到dubbo的注册中心，通过和注册中心的信息交互实现远程的方法调用。</p>
+<p><strong>首先应该导入上面所说的两个jar包</strong></p>
+<p>同样的我们也要配置一下消费者的一些配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">dubbo.application.name</span>=<span class="string">consumer #同理</span></span><br><span class="line"><span class="meta">dubbo.registry.address</span>=<span class="string">your registry ip :2181</span></span><br><span class="line"><span class="meta">dubbo.registry.protocol</span>=<span class="string">zookeeper # 同理</span></span><br><span class="line"><span class="meta">dubbo.monitor.protocol</span>=<span class="string">registry # 同理</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">9999 # 这里我修改一下本机服务的端口号避免冲突</span></span><br></pre></td></tr></table></figure>
+<p>配置好上面的配置之后，我们就可以写代码了，这里我导入了spring-boot-web的jar包，简单的写一个Controller</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@DubboReference(timeout = 6000)</span></span><br><span class="line">    <span class="keyword">private</span> OrderService orderService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@RequestMapping(&quot;test&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">requst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> orderService.initOrder(<span class="string">&quot;张三&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到，直接使用<code>@DubboReference</code>注解就可以远程调用该接口的方法，相当于我们在本地使用<code>@Autowired</code>注解注入了一个接口，非常的方便。</p>
+<p>接下来我们启动web服务，然后请求这个方法。</p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20200814211106266.png" alt="image-20200814211106266"></p>
+<p>我们可以看到，服务消费者返回了正确调用后的结果，同时也服务提供者也打印出了相应的信息。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20200814211200889.png" alt="image-20200814211200889"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>通过这个小小的案例暂时入门Dubbo这个Java RPC框架，接下来会对Dubbo进行跟深层次的了解。</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2020/12/24/Mysql事务/" data-toggle="tooltip" data-placement="top" title="回溯算法复习">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                        <li class="next">
+                            <a href="/2020/07/09/IO模型/" data-toggle="tooltip" data-placement="top" title="I/O模型">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#Java" title="Java">Java</a>
+                        
+                          <a class="tag" href="/tags/#RPC" title="RPC">RPC</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://39.106.168.39/" target="_blank">JuneBlog</a></li>
+                    
+                        <li><a href="https://blog.fivezha.cn/" target="_blank">异国迷路的十字路口</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "deepblue-blog";
+    var disqus_identifier = "https://kklll.github.io/2020/07/09/Dubbo/";
+    var disqus_url = "https://kklll.github.io/2020/07/09/Dubbo/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/kklll">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; DeepBlue&#39;s Blog 2020 
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a target="_blank" rel="noopener" href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+
+<script src="/js/jquery.min.js"></script>
+
+
+<!-- Bootstrap Core JavaScript -->
+
+<script src="/js/bootstrap.min.js"></script>
+
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/js/hux-blog.min.js"></script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://kklll.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

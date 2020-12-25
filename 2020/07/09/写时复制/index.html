@@ -13,11 +13,11 @@
 
     <title>
         
-          About - DeepBlue的博客 | DeepBlue&#39;s Blog
+          写时复制 - DeepBlue的博客 | DeepBlue&#39;s Blog
         
     </title>
 
-    <link rel="canonical" href="https://kklll.github.io/about/">
+    <link rel="canonical" href="https://kklll.github.io/2020/07/09/写时复制/">
 
     <!-- Bootstrap Core CSS -->
     
@@ -153,169 +153,135 @@
 
 
     <!-- Main Content -->
-    <!-- Page Header -->
-<header class="intro-header" style="background-image: url('/img/bg.jpg')">
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://kklll.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/xxmarek-piwnicki-DgdJ_0us5SE-unsplash.jpg')
+    }
+</style>
+<header class="intro-header" >
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
-                <div class="site-heading">
-                    <h1>About</h1>
-                    <!--<hr class="small">-->
-                    <span class="subheading">Hey, this is DeepBlue.</span>
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#操作系统" title="操作系统">操作系统</a>
+                        
+                    </div>
+                    <h1>写时复制</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by DeepBlue on
+                        2020-07-09
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
 
-
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        
-
-<!-- USE SIDEBAR -->
     <!-- Post Container -->
             <div class="
-                col-lg-8 col-lg-offset-1
-                col-md-8 col-md-offset-1
-                col-sm-12
-                col-xs-12
-                post-container
-            ">
-            
-                <blockquote>
-<p>写写代码，看看窗外的世界。<br>世界那么大，多玩玩看看。<br>主要开发语言：JAVA,主要做后端开发，是一个菜的不能再菜的菜鸡了，希望大佬们能带带我。</p>
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h2 id="写时复制技术"><a href="#写时复制技术" class="headerlink" title="写时复制技术"></a>写时复制技术</h2><h3 id="什么是写时复制技术"><a href="#什么是写时复制技术" class="headerlink" title="什么是写时复制技术"></a>什么是写时复制技术</h3><p> 在Linux程序中，fork（）会产生一个和父进程完全相同的子进程，但子进程在此后多会exec系统调用，出于效率考虑，linux中引入了“写时复制“技术，也就是只有进程空间的各段的内容要发生变化时，才会将父进程的内容复制一份给子进程。</p>
+<h4 id="什么是exec系统调用"><a href="#什么是exec系统调用" class="headerlink" title="什么是exec系统调用"></a>什么是exec系统调用</h4><hr>
+<blockquote>
+<p>The  exec()  family  of  functions  replaces  the  current process image with a new process image. </p>
 </blockquote>
+<p>exec是以新的进程去代替原来的进程，但进程的PID保持不变。因此，可以这样认为，exec系统调用并没有创建新的进程，只是替换了原来进程上下文的内容。原进程的代码段，数据段，堆栈段被新的进程所代替。</p>
+<p>我们都知道一个进程的主要组成包括以下几个部分：</p>
+<ol>
+<li>程序（可执行的数据）</li>
+<li>数据（变量，内存中的值，缓冲区的）</li>
+<li>PCB（进程控制块）</li>
+</ol>
+<p>exec系统调用做的就是把进程进行替换，但是不会替换进程的PID等信息，会替换掉<code>数据段</code>、<code>堆栈段</code>和<code>代码段</code>等其他的信息,也就是说，对系统而言，还是同一个进程，不过已经是另一个程序了。</p>
+<p>exec是一个函数簇，由6个函数组成，分别是以excl和execv打头的。具体如下:</p>
+<p>execl(const char* filepath,const char* arg1,char*arg2……)</p>
+<p>execlp(const char<em>filename,const char</em>arg1,const char*arg2….. )</p>
+<p>execle(const char<em>filepath,const char</em>arg1,const char<em>arg2,…..,char</em> cons envp[])</p>
+<p>execv  (const char* filepath,char* argv[])</p>
+<p>execvp (const char* filename,char* argv[])</p>
+<p>execve (const char* filepath,char<em>argv[],char</em> const envp[])</p>
+<p>我们都知道system系统调用也有执行新程序的功能，那么exec系统调用和system系统调用有什么区别呢？</p>
+<ol>
+<li> exec是直接用新的进程去代替原来的程序运行，运行完毕之后不回到原先的程序中去</li>
+<li> system是调用shell执行你的命令，system=fork+exec+waitpid,执行完毕之后，回到原先的程序中去。继续执行下面的部分</li>
+</ol>
+<p><strong>通俗一点来时如果你用system系统调用的话，那么操作系统会给你创建一个进程，然后执行你要执行的代码，但是你用exec的话就要使用fork去新建一个新的进程，然后在新的进程里面调用exec去执行你的代码</strong></p>
+<hr>
+<p>理解了上面的exec系统调用的话我们就理解了上面说的写时复制（COW）是上面意思了。</p>
+<p>我们可以联想一下，如果我通过fork新开了一个进程，按照我们传统的想法，当然是要把父进程的所有代码段，数据段堆栈段复制给子进程一份，但是很多情况下我们其实新开了一个线程都是大部分还是去做一些exec的系统调用，这时候就如果没有写时复制，就会出现性能问题，你刚开了一个新的进程，我辛辛苦苦的给你把数据，代码段给你搞好了，结果你上来第一句就是exec系统调用，把我辛辛苦苦搞好的代码段和数据段的信息给我作废，去重新加载新的代码段和堆栈段，这样效率肯定是不好的，也就是因为有这样的问题，我们就推出了写时复制的技术。</p>
+<p>写时复制技术，它通过允许父进程和子进程最初共享相同的页面来工作。这些共享页面标记为写时复制，这意味着如果任何一个进程写入共享页面，那么就创建共享页面的副本。这样我们就不必给每个子进程都创建相同的内存区域，节省了内存资源和系统运行效率。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/2-1Q10Q45045312.gif" alt="进程1修改页面C前后"></p>
+<p>假设子进程试图修改包含部分堆栈的页面，并且设置为写时复制。操作系统会创建这个页面的副本，将其映射到子进程的地址空间。然后，子进程会修改复制的页面，而不是属于父进程的页面。显然，当使用写时复制技术时，仅复制任何一进程修改的页面，所有未修改的页面可以由父进程和子进程共享。</p>
 
 
-                <!-- 如果开启评论功能 -->
+                <hr>
+
                 
-                    <hr>
 
+                <ul class="pager">
                     
-
+                        <li class="previous">
+                            <a href="/2020/07/09/hashmap分析/" data-toggle="tooltip" data-placement="top" title="HashMap源码分析">&larr; Previous Post</a>
+                        </li>
                     
-                    <!-- disqus 评论框 start -->
-                    <div class="comment">
-                        <div id="disqus_thread" class="disqus-thread"></div>
-                    </div>
-                    <!-- disqus 评论框 end -->
                     
-
-
+                        <li class="next">
+                            <a href="/2020/07/09/mysql中的log/" data-toggle="tooltip" data-placement="top" title="Mysql中的Log">Next Post &rarr;</a>
+                        </li>
                     
+                </ul>
 
-                    
-                    <!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
-                    <script type="text/javascript">
-                        /* * * CONFIGURATION VARIABLES * * */
-                        var disqus_shortname = "deepblue-blog";
-                        var disqus_identifier = "https://kklll.github.io/about/index.html";
-                        var disqus_url = "https://kklll.github.io/about/index.html";
+                
 
-                        (function() {
-                            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-                            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-                        })();
-
-                        
-                    </script>
-                    <!-- disqus 公共JS代码 end -->
-                    
-
-
-
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
                 
 
             </div>
+    <!-- Side Catalog Container -->
+        
+
     <!-- Sidebar Container -->
+
             <div class="
-                col-lg-3 col-lg-offset-0
-                col-md-3 col-md-offset-0
-                col-sm-12
-                col-xs-12
-                sidebar-container
-            ">
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
                 <!-- Featured Tags -->
                 
                 <section>
                     <!-- no hr -->
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
-                        
-                            
-                            <a href="/tags/#Java" title="Java" rel="7">Java</a>
-                            
-                        
-                            
-                        
-                            
-                            <a href="/tags/#操作系统" title="操作系统" rel="4">操作系统</a>
-                            
-                        
-                            
-                            <a href="/tags/#算法" title="算法" rel="5">算法</a>
-                            
-                        
-                            
-                        
-                            
-                            <a href="/tags/#Mysql" title="Mysql" rel="3">Mysql</a>
-                            
-                        
-                            
-                            <a href="/tags/#数据结构" title="数据结构" rel="4">数据结构</a>
-                            
-                        
-                            
+                       
+                          <a class="tag" href="/tags/#操作系统" title="操作系统">操作系统</a>
                         
                     </div>
                 </section>
                 
 
-                <!-- Short About -->
-                <section class="visible-md visible-lg">
-                    <hr><h5><a href="/about/">ABOUT ME</a></h5>
-                    <div class="short-about">
-
-                        
-                            <img src="/img/head.jpg" />
-                        
-
-                        
-                            <p>不积硅步，无以至千里!</p>
-                        
-
-                        <!-- SNS Link -->
-                        <ul class="list-inline">
-                            
-                            
-                            
-
-                            
-
-                            
-
-                            
-                                <li>
-                                    <a target="_blank"  href="https://github.com/kklll">
-                                        <span class="fa-stack fa-lg">
-                                            <i class="fa fa-circle fa-stack-2x"></i>
-                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-                                        </span>
-                                    </a>
-                                </li>
-                            
-                            
-                            
-                            
-                        </ul>
-                    </div>
-                </section>
-                
                 <!-- Friends Blog -->
                 
                 <hr>
@@ -330,9 +296,66 @@
                 </ul>
                 
             </div>
-        
+
+        </div>
     </div>
-</div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "deepblue-blog";
+    var disqus_identifier = "https://kklll.github.io/2020/07/09/%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6/";
+    var disqus_url = "https://kklll.github.io/2020/07/09/%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
 
 
     <!-- Footer -->
