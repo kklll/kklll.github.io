@@ -103,14 +103,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/about/">About</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -190,6 +190,28 @@
 
 <div class="post-preview">
 
+    <a href="/2021/01/03/kafka/">
+        <h2 class="post-title">
+            Kafka学习
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            什么叫消息队列消息（Message）是指在应用间传送的数据。消息可以非常简单，比如只包含文本字符串，也可以更复杂，可能包含嵌入对象。
+消息队列（Message Queue）是一种应用间的通信方式，消息发送后可以立即返回，由消息系统来确保消息的可靠传递。消息发布者只管把消息发布到 MQ 中而不用管谁来取，消息使用者只管从 MQ 中取消息而不管是谁发布的。这样发布者和使用者都不用知道对方的存在。......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by DeepBlue on
+        2021-01-03
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2020/12/24/Mysql事务/">
         <h2 class="post-title">
             回溯算法复习
@@ -263,29 +285,6 @@ I/O复用：IO multiplexing
 
 <div class="post-preview">
 
-    <a href="/2020/07/09/hello-world/">
-        <h2 class="post-title">
-            如何优雅的处理SpringBoot Web中的异常
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            大家在开发Web项目中的时候总是会遇到一些让人很麻烦的参数校验和一些固定的返回格式，如果我们在每个方法中都加入这些代码就很麻烦，大大降低我们的开发效率。今天我们就看一下如何进行优雅的异常抛出。
-首先定义一个异常的接口：
-12345678910111213public interface BasicException &#123;    /**     * 错误码     * @return ......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by DeepBlue on
-        2020-07-09
-    </p>
-
-</div>
-<hr>
-
-<div class="post-preview">
-
     <a href="/2020/07/09/hashmap分析/">
         <h2 class="post-title">
             HashMap源码分析
@@ -308,18 +307,17 @@ I/O复用：IO multiplexing
 
 <div class="post-preview">
 
-    <a href="/2020/07/09/写时复制/">
+    <a href="/2020/07/09/hello-world/">
         <h2 class="post-title">
-            写时复制
+            如何优雅的处理SpringBoot Web中的异常
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            写时复制技术什么是写时复制技术 在Linux程序中，fork（）会产生一个和父进程完全相同的子进程，但子进程在此后多会exec系统调用，出于效率考虑，linux中引入了“写时复制“技术，也就是只有进程空间的各段的内容要发生变化时，才会将父进程的内容复制一份给子进程。
-什么是exec系统调用
-
-The  exec()  family  of  functions  replaces  the ......
+            大家在开发Web项目中的时候总是会遇到一些让人很麻烦的参数校验和一些固定的返回格式，如果我们在每个方法中都加入这些代码就很麻烦，大大降低我们的开发效率。今天我们就看一下如何进行优雅的异常抛出。
+首先定义一个异常的接口：
+12345678910111213public interface BasicException &#123;    /**     * 错误码     * @return ......
         </div>
     </a>
     <p class="post-meta">
@@ -345,6 +343,30 @@ The  exec()  family  of  functions  replaces  the ......
 Bin Logbinlog是Mysql sever层维护的一种二进制日志，与innodb引擎中的redo/undo log是完全不同的日志；其主要是用来记录对mysql数据更新或潜在发生更新的SQL语句，并以”事务”的形式保存在磁盘中；
 作用
 主从复制：MySQL Replication在Master端开启binlog，Master把它的......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by DeepBlue on
+        2020-07-09
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2020/07/09/写时复制/">
+        <h2 class="post-title">
+            写时复制
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            写时复制技术什么是写时复制技术 在Linux程序中，fork（）会产生一个和父进程完全相同的子进程，但子进程在此后多会exec系统调用，出于效率考虑，linux中引入了“写时复制“技术，也就是只有进程空间的各段的内容要发生变化时，才会将父进程的内容复制一份给子进程。
+什么是exec系统调用
+
+The  exec()  family  of  functions  replaces  the ......
         </div>
     </a>
     <p class="post-meta">
@@ -417,40 +439,6 @@ candidates 中的数字可以无限制重复被选取。
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2020/07/09/红黑树/">
-        <h2 class="post-title">
-            回溯算法复习
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            
-题目来源：力扣
-
-39. 组合总和题目描述
-给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
-candidates 中的数字可以无限制重复被选取。
-
-说明：
-
-所有数字（包括 target）都是正整数。
-解集不能包含重复的组合。
-
-示例 1：
-123456输入：candidates = [......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by DeepBlue on
-        2020-07-09
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -486,9 +474,11 @@ candidates 中的数字可以无限制重复被选取。
                     <div class="tags">
                         
                             
-                            <a href="/tags/#Java" title="Java" rel="7">Java</a>
+                            <a href="/tags/#Java" title="Java" rel="8">Java</a>
                             
                         
+                            
+                            <a href="/tags/#RPC" title="RPC" rel="2">RPC</a>
                             
                         
                             
@@ -604,7 +594,7 @@ candidates 中的数字可以无限制重复被选取。
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; DeepBlue&#39;s Blog 2020 
+                    Copyright &copy; DeepBlue&#39;s Blog 2021 
                     <br>
                     Theme by <a target="_blank" rel="noopener" href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
