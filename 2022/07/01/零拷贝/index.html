@@ -1,0 +1,720 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Deepblue">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="零拷贝什么是零拷贝？ 零拷贝技术，就是避免将数据从一块存储拷贝到另外一块存储的技术，从而节省拷贝带来的CPU开销，零拷贝并不是将拷贝操作完全消除掉。  传统拷贝：这个没什么说的，就是平时我们一般都会用到的拷贝方式； MMAP方式的拷贝：当应用程序不需要对数据进行访问时，则可以避免将数据从内核空间拷贝到用户空间； SendFile方式的拷贝：写时拷贝技术，数据不需要提前拷贝，而是当需要修改的时候再进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="零拷贝相关">
+<meta property="og:url" content="https://dlddw.xyz/2022/07/01/%E9%9B%B6%E6%8B%B7%E8%B4%9D/index.html">
+<meta property="og:site_name" content="Deepblue的博客小站">
+<meta property="og:description" content="零拷贝什么是零拷贝？ 零拷贝技术，就是避免将数据从一块存储拷贝到另外一块存储的技术，从而节省拷贝带来的CPU开销，零拷贝并不是将拷贝操作完全消除掉。  传统拷贝：这个没什么说的，就是平时我们一般都会用到的拷贝方式； MMAP方式的拷贝：当应用程序不需要对数据进行访问时，则可以避免将数据从内核空间拷贝到用户空间； SendFile方式的拷贝：写时拷贝技术，数据不需要提前拷贝，而是当需要修改的时候再进">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011212100.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011213802.png">
+<meta property="article:published_time" content="2022-07-01T12:46:25.000Z">
+<meta property="article:modified_time" content="2022-07-03T05:29:52.508Z">
+<meta property="article:author" content="Deepblue">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011212100.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>零拷贝相关 - Deepblue的博客小站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dlddw.xyz","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>DeepBlue</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="零拷贝相关"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-01 20:46" pubdate>
+          2022年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">零拷贝相关</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2022年7月3日 下午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><strong>什么是零拷贝？</strong></p>
+<p>零拷贝技术，就是避免将数据从一块存储拷贝到另外一块存储的技术，从而节省拷贝带来的CPU开销，零拷贝并不是将拷贝操作完全消除掉。</p>
+<ul>
+<li><strong>传统拷贝</strong>：这个没什么说的，就是平时我们一般都会用到的拷贝方式；</li>
+<li><strong>MMAP方式的拷贝</strong>：当应用程序不需要对数据进行访问时，则可以避免将数据从内核空间拷贝到用户空间；</li>
+<li><strong>SendFile方式的拷贝</strong>：写时拷贝技术，数据不需要提前拷贝，而是当需要修改的时候再进行部分拷贝。</li>
+</ul>
+<h4 id="传统拷贝"><a href="#传统拷贝" class="headerlink" title="传统拷贝"></a>传统拷贝</h4><p>传统的Linux系统中，标准的I&#x2F;O接口（例如read，write）都是基于数据拷贝操作的，即是I&#x2F;O操作会导致数据在内核地址空间的缓冲区和用户地址空间的缓冲区之间进行拷贝，所以标准I&#x2F;O也被称作缓存I&#x2F;O。这样做的好处是，如果所请求的数据已经存放在内核的高速缓冲存储器中，那么就可以减少实际的I&#x2F;O操作，但坏处就是数据拷贝的过程，会导致CPU开销。</p>
+<blockquote>
+<p><strong>DMA（Direct Memory Access）</strong>：直接存储器访问。DMA是一种无需CPU的参与，让外设和系统内存之间进行双向数据传输的硬件机制。当DMA完成数据的传送之后，使用系统中断提醒CPU，然后CPU就可以高效的处理数据。使用DMA可以使系统CPU从实际的I&#x2F;O数据传输过程中摆脱出来，从而大大提高系统的吞吐率。</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011212100.png" srcset="/img/loading.gif" lazyload alt="1"></p>
+<p>我们可以看到需要经历四个阶段，2次DMA，2次CPU中断，总共四次拷贝，有四次上下文切换，并且会占用两次CPU。</p>
+<ol>
+<li>CPU发指令给I&#x2F;O设备的DMA，由DMA将我们磁盘中的数据传输到内核空间的内核buffer。</li>
+<li>第二阶段触发我们的CPU中断，CPU开始将将数据从kernel buffer拷贝至我们的应用缓存</li>
+<li>CPU将数据从应用缓存拷贝到内核中的socket buffer.</li>
+<li>DMA将数据从socket buffer中的数据拷贝到网卡缓存。</li>
+</ol>
+<p><strong>优点</strong>:开发成本低，适合一些对性能要求不高的，比如一些什么管理系统这种我觉得就应该够了</p>
+<p><strong>缺点</strong>:多次上下文切换，占用多次CPU，性能比较低。</p>
+<h4 id="MMAP方式的拷贝"><a href="#MMAP方式的拷贝" class="headerlink" title="MMAP方式的拷贝"></a>MMAP方式的拷贝</h4><p>我们提到用户态的进程是不能随意操作内核地址空间的，而且mmap也没有提供用户进程直接操作内核地址空间的能力，而是通过内存映射的机制，把内核中的部分内存空间映射到用户空间的内存，用户空间和内核空间共享一块相同的物理内存，从而提供用户进程对内存直接访问的能力。</p>
+<p>有了mmap的支持，数据从文件中读取到内核空间之后，就不会再拷贝到用户空间，当调用socket的write时，数据会直接从内核缓存中直接拷贝到Socket的缓冲区中，避免了在用户空间中多中转一次。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201011213802.png" srcset="/img/loading.gif" lazyload alt="3"></p>
+<p>我们可以看到，MMP与传统的拷贝方式相比，mmp减少了数据在用户空间进行一次拷贝mmap虽然能减少一次数据拷贝，但是还是需要4次上下文切换，拷贝的话需要执行三次，即两次DMA拷贝，一次CPU的拷贝：</p>
+<ul>
+<li><p>用户进程通过 mmap() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</p>
+</li>
+<li><p>将用户进程的内核空间的读缓冲区（read buffer）与用户空间的缓存区（user buffer）进行内存地址映射。</p>
+</li>
+<li><p>CPU利用DMA控制器将数据从主存或硬盘拷贝到内核空间（kernel space）的读缓冲区（read buffer）。</p>
+</li>
+<li><p>上下文从内核态（kernel space）切换回用户态（user space），mmap 系统调用执行返回。</p>
+</li>
+<li><p>用户进程通过 write() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</p>
+</li>
+<li><p>CPU将读缓冲区（read buffer）中的数据拷贝到的网络缓冲区（socket buffer）。</p>
+</li>
+<li><p>CPU利用DMA控制器将数据从网络缓冲区（socket buffer）拷贝到网卡进行数据传输。</p>
+</li>
+<li><p>上下文从内核态（kernel space）切换回用户态（user space），write 系统调用执行返回。</p>
+</li>
+</ul>
+<h4 id="SendFile方式的拷贝"><a href="#SendFile方式的拷贝" class="headerlink" title="SendFile方式的拷贝"></a>SendFile方式的拷贝</h4><p>sendfile内核调用是在Linux 2.1版本开始引入的，主要功能是在内核态中，在两个文件描述符之间传递数据，避免了用户空间和内核空间之间的数据拷贝操作。</p>
+<p>使用sendfile时，数据中转与mmap类似，不经过用户空间，但是由于sendfile全程在内核态执行，因此只需要2次上下文切换：</p>
+<ul>
+<li>调用sendfile将文件内容通过socket发送出去时候，从用户态切换到内核态；</li>
+<li>任务完成之后，切换回来。</li>
+</ul>
+<p>在Linux 2.4版本中，对sendfile进一步做了优化，之前从“文件数据缓存”到“socket缓存”时候，也需要一次拷贝，优化之后，“socket缓存”中只存储要发送的数据在“文件数据缓存”中的位置和偏移量，在实际发送时，根据位置和偏移量直接将“文件数据缓存”中的数据拷贝到网卡设备中，又省掉了一次拷贝操作。</p>
+<p>基于 sendfile和DMA系统调用的零拷贝方式，整个拷贝过程会发生<strong>2 次上下文切换、0 次 CPU 拷贝以及 2 次 DMA 拷贝</strong>用户程序读写数据的流程如下：</p>
+<ol>
+<li>用户进程通过 sendfile() 函数向内核（kernel）发起系统调用，上下文从用户态（user space）切换为内核态（kernel space）。</li>
+<li>CPU 利用 DMA 控制器将数据从主存或硬盘拷贝到内核空间（kernel space）的读缓冲区（read buffer）。</li>
+<li>CPU 把读缓冲区（read buffer）的文件描述符（file descriptor）和数据长度拷贝到网络缓冲区（socket buffer）。</li>
+<li>基于已拷贝的文件描述符（file descriptor）和数据长度，CPU 利用 DMA 控制器的 gather&#x2F;scatter 操作直接批量地将数据从内核的读缓冲区（read buffer）拷贝到网卡进行数据传输。</li>
+<li>上下文从内核态（kernel space）切换回用户态（user space），sendfile 系统调用执行返回。</li>
+</ol>
+<p>但是使用这种方式也是有缺点的，就是我们再拷贝的过程中<strong>不能对数据进行任何的修改</strong>，如果我们对数据进行修改后再进行拷贝的话这种方式就行不通了。如果我们要对文件进行修改的话就必须使用传统的拷贝方式了。</p>
+<p>因为基于SendFile的这种特性，零拷贝技术被用在Nginx等软件上，提升了很大的效率，比如我们使用nginx的时候对静态资源的读写就会用到零拷贝，大大增加了我们服务器的性能。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="category-chain-item">操作系统</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>零拷贝相关</div>
+      <div>https://dlddw.xyz/2022/07/01/零拷贝/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Deepblue</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E7%BA%A2%E9%BB%91%E6%A0%91/" title="红黑树相关代码">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">红黑树相关代码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" title="操作系统相关知识">
+                        <span class="hidden-mobile">操作系统相关知识</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

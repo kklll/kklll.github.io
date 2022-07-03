@@ -1,0 +1,770 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Deepblue">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="InnoDB 怎么存储数据数据目录众所周之，MySQL 的数据是存储在硬盘中的，而操作系统管理硬盘中的数据的方式就是文件系统，所以通俗的来说，MySQL 中的数据是存在一个个文件中的，这些文件 的目录就叫 数据目录。 通过 SHOW VARIABLES LIKE &#39;datadir&#39; 可以查看这个目录：  进入这个目录，你会发现，每个数据库对应该目录下的一个子目录，比如 MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB是如何存储数据的">
+<meta property="og:url" content="https://dlddw.xyz/2022/07/01/mysql%E6%98%AF%E5%A6%82%E4%BD%95%E5%AD%98%E6%95%B0%E6%8D%AE%E7%9A%84/index.html">
+<meta property="og:site_name" content="Deepblue的博客小站">
+<meta property="og:description" content="InnoDB 怎么存储数据数据目录众所周之，MySQL 的数据是存储在硬盘中的，而操作系统管理硬盘中的数据的方式就是文件系统，所以通俗的来说，MySQL 中的数据是存在一个个文件中的，这些文件 的目录就叫 数据目录。 通过 SHOW VARIABLES LIKE &#39;datadir&#39; 可以查看这个目录：  进入这个目录，你会发现，每个数据库对应该目录下的一个子目录，比如 MySQL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614159505762-1614159505755.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614229946103-1614229945999.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614250797750-1614250797632.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614251005493-1614251005478.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614252031601-1614252031578.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614259522989-1614259522960.png">
+<meta property="article:published_time" content="2022-07-01T12:46:25.000Z">
+<meta property="article:modified_time" content="2022-07-03T05:38:07.064Z">
+<meta property="article:author" content="Deepblue">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614159505762-1614159505755.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>InnoDB是如何存储数据的 - Deepblue的博客小站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dlddw.xyz","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>DeepBlue</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="InnoDB是如何存储数据的"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-01 20:46" pubdate>
+          2022年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          133 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">InnoDB是如何存储数据的</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2022年7月3日 下午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="InnoDB-怎么存储数据"><a href="#InnoDB-怎么存储数据" class="headerlink" title="InnoDB 怎么存储数据"></a>InnoDB 怎么存储数据</h1><h2 id="数据目录"><a href="#数据目录" class="headerlink" title="数据目录"></a>数据目录</h2><p>众所周之，MySQL 的数据是存储在硬盘中的，而操作系统管理硬盘中的数据的方式就是<strong>文件系统</strong>，所以通俗的来说，MySQL 中的数据是存在一个个文件中的，这些文件 的目录就叫 <strong>数据目录</strong>。</p>
+<p>通过 <code>SHOW VARIABLES LIKE &#39;datadir&#39;</code> 可以查看这个目录：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614159505762-1614159505755.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>进入这个目录，你会发现，每个数据库对应该目录下的一个子目录，比如 MySQL 中有一个 <code>hotsong</code> 的库，Data 目录下就会有一个 hotsong 的文件夹，这个文件夹里面存储的是一些 <code>ibd</code> 类型的文件，数据库里每张表对应一个 <code>ibd</code> 文件：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">PS C:\ProgramData\MySQL\MySQL Server 8.0\Data\hotsong&gt; <span class="hljs-keyword">ls</span>                                                          <br>    目录: C:\ProgramData\MySQL\MySQL Server 8.0\Data\hotsong<br><br><br>Mode                LastWriteTime         Length Name<br><span class="hljs-params">----</span>                <span class="hljs-params">-------------</span>         <span class="hljs-params">------</span> <span class="hljs-params">----</span><br>-a<span class="hljs-params">----</span>         2019/9/7     20<span class="hljs-function">:44</span>         114688 hotsong.ibd<br>-a<span class="hljs-params">----</span>         2019/9/7     22<span class="hljs-function">:37</span>       12582912 singer.ibd<br>-a<span class="hljs-params">----</span>         2019/9/7     21<span class="hljs-function">:17</span>         114688 singer_type.ibd<br>-a<span class="hljs-params">----</span>        2020/10/6      9<span class="hljs-function">:21</span>      130023424 songs.ibd<br></code></pre></td></tr></table></figure>
+
+<p>这里是 MySQL 8.0 的样子，但如果你使用的是更早的版本，你还会看到一种 <code>.frm</code> 的文件，这种文件用来描述表结构，8.0 之后, 表结构信息以 SDI 的形式放在了 <code>.ibd</code> 文件中，你可以使用官方提供 的工具 <code>idb2sdi</code> 从 ibd 文件中提取表结构信息，结果会以 json 形式输出</p>
+<p><img src="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614229946103-1614229945999.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在 8.0 之前，<code>ibd</code> 文件里保存的仅仅是该表的数据，但是再往前，MySQL 5.6.6 之前，MySQL 服务器中所有表的数据都会被放在一个地方，叫<strong>系统表空间</strong>， 对应数据目录下的 <code>ibdata1</code> 文件，这是一个自扩展文件，但是你也可以在服务器启动时使用相关参数指定服务器使用自定义的文件。</p>
+<p>在 5.6.6 之后，InnoDB 引如 <strong>独立表空间</strong> 空间的概念，每张表使用单独的文件存储数据和表结构，也就是上面的 <code>ibd</code> 和 <code>frm</code> 文件，服务器启动时，可以通过 <code>innodb_file_per_table</code> 设置只使用系统表空间（值为 0）或者是使用独立表空间（值为1）.</p>
+<blockquote>
+<p>服务启动后，通过 ALERT 语句，存储在两种表空间中的数据可以相互移动。</p>
+</blockquote>
+<p>需要注意的是，不是说使用了独立表空间系统表空间就没用了，因为系统表空间除了可以存储表数据外，还存储了许多 MySQL 服务运行所必要的公共信息。</p>
+<h3 id="数据目录总结"><a href="#数据目录总结" class="headerlink" title="数据目录总结"></a>数据目录总结</h3><p>MySQL 的数据是存储在磁盘的，或者可以说是存储在文件中的，这些文件的目录叫做数据目录，每个数据库对应数据目录下的一个子目录，每个表中数据存放的地方叫表空间，在 5.6.6 之前，所有数据都被存放在一个地方，叫系统表空间，数据库子目录下只有 <code>frm</code> 文件，用来描述表结构，在 5.6.6 之后，InnoDB 默认将每个表的数据放在一个单独的 <code>ibd</code> 文件中，称为独立表空间，在 8.0 之后，InnoDB 将描述表结构的 <code>frm</code> 信息以 <code>sdi</code> 的形式也放在了 <code>ibd</code> 文件中，所以 8.0 之后，数据库子目录下就只有 <code>ibd</code> 了。</p>
+<p>5.6.6 之后，系统表空间默认只存储一些必要的公共信息，对应数据目录下的 <code>ibdata1</code> 文件，但他仍然很重要。</p>
+<p><strong>InnoDB 的数据存放在数据目录下的某个文件中</strong>，这是把 InnoDB 看作一个黑盒，从操作系统的角度得到的一个宏大的结论，但每条记录是以怎样的形式组织在这个文件中的，就需要深入了解表空间和记录的具体结构了。</p>
+<h2 id="聚簇索引和页"><a href="#聚簇索引和页" class="headerlink" title="聚簇索引和页"></a>聚簇索引和页</h2><p>众所周之，InnoDB 中每张表都一定会有一个聚簇索引，如果该表设置了主键，那就会以主键建立聚簇索引，如果没有设置主键，InnoDB 会选取一个唯一非 NULL 的列建立聚簇索引，如果找不到适合建立聚簇索引的列，InnoDB 会给表插入一个隐藏列 <code>row_id</code>, 并以此建立聚簇索引。</p>
+<p>为什么 InnoDB 如此执着非要建一个聚簇索引呢？原因是聚簇索引的叶子节点会存储表中的完整数据，换句话说，InnoDB 中的数据是存储在聚簇索引叶子节点中的。</p>
+<p>InnoDB 的聚簇索引是一颗 B+ 树，B+ 树的每个节点占一页，“页” 是 InnoDB 中内存分配的基本单位，大小为 16KB，InnoDB 中有许多不同种类的页，如移除页，索引页等，B+ 的树节点类型就是索引页，它的结构如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614250797750-1614250797632.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从上往下依次是：</p>
+<ul>
+<li>文件头（File Header）:占 38 字节，用来描述数据页的一些状态信息。</li>
+<li>页头（Page Header）: 占 56 字节，记录了存储在页中的记录的一些状态。</li>
+<li>Infimum + Supermum: 占 26 字节，该页中两条预添加的记录，Infimum 表示该页中的最小记录，Supermum表示一个最大记录。</li>
+<li>User Records: 用户记录。</li>
+<li>Free Space: 空闲空间。</li>
+<li>页目录（Page Directory）: 用来加快页内记录查找速度。</li>
+<li>文件尾（File Tialer）: 用于校验数据。</li>
+</ul>
+<h3 id="File-Header"><a href="#File-Header" class="headerlink" title="File Header"></a>File Header</h3><p>文件头（File Header）:占 38 字节，用来描述数据页的一些状态信息，它的结构如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614251005493-1614251005478.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从左到右依次表示：</p>
+<ol>
+<li>该页的校验和</li>
+<li>页号</li>
+<li>上一个页的页号</li>
+<li>下一个页的页号</li>
+<li>页面被最后修改时对应的日志序列号（LSN）</li>
+<li>页面类型</li>
+<li>仅在系统表空间的第一个页上使用</li>
+<li>页属于哪个表空间</li>
+</ol>
+<p>这里面比较重要的是 <code>FIL_PAGE_PREV</code> 和 <code>FIL_PAGE_NEXT</code> ,这两个字段可以看作指向上一个页和下一个页的指针，我们知道 B+ 树的叶子节点是通过双指针串联起来的，但实际上，InnoDB 的索引里，它的非叶子节点也可以看作是串连起来的。</p>
+<h3 id="Page-Header"><a href="#Page-Header" class="headerlink" title="Page Header"></a>Page Header</h3><p>页头（Page Header）: 占 56 个字节，他记录了存储在页中的记录的一些状态，结构如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614252031601-1614252031578.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从上到下依次为：</p>
+<ol>
+<li>页目录中槽的数量（后面会说）</li>
+<li>还未使用的最小地址空间,也就是该地址之后就是 Free Space 了。</li>
+<li>第一位表示本记录是否为紧凑型记录，后 15 为表示本页堆中的记录数。</li>
+<li>已删除记录链表的头节点的偏移。</li>
+<li>已删除的记录占用的字节数。</li>
+<li>最后插入的记录的位置。</li>
+<li>记录插入方向。</li>
+<li>一个方向连续插入的记录数。</li>
+<li>用户记录数（PAGE_N_HEAP 中的记录数包含已经删除了的记录和Infimum + Supermum， 但这里不包含）</li>
+<li>当前页的最大事务 ID。</li>
+<li>该页在 B+ 树中所处的层级。</li>
+<li>B+ 树叶子节点的头部信息（只在 B+ 树的更页面定义）</li>
+<li>B+ 树非叶子节点头部信息（只在 B+ 树的更页面定义）</li>
+</ol>
+<p>关于第一个 <code>PAGE_N_DIR_SLOTS</code> , 他与页目录有关，在后面会说到，关于 3， 4， 5， 9 他们都涉及到了记录的删除，当我们执行 DELETE 语句时，InnoDB 并不会真的把这条记录从磁盘删除，因为这还涉及到紧凑数据，每次都真正删除花销太大，所以 InnoDB 会修改这条记录上的一个标记位，并将这些已经删除的记录链在一起（事实上正常记录也是链在一起的，在说记录格式时会讲到），4 <code>PAGE_FREE</code> 所记录的就是这个链表的头节点在 User Records 中的偏移。</p>
+<p>关于 7，8，记录插入方向描述的是新插入记录的主键值与最后一次插入记录主键值的大小关系。</p>
+<h3 id="User-Records"><a href="#User-Records" class="headerlink" title="User Records"></a>User Records</h3><p>到这儿就需要说一下 InnoDB 的记录行格式了。</p>
+<h4 id="InnoDB-行格式"><a href="#InnoDB-行格式" class="headerlink" title="InnoDB 行格式"></a>InnoDB 行格式</h4><p>行格式，也就是每条记录在 InnoDB 中的真实样子，InnoDB 有四种行格式，分别是：COMPACT， REDUNDANT， DYNAMIC， COMPRESSED，通过 <code>ROW_FORMAT</code> 可以修改表的行格式，如：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-built_in">table_name</span> ROW_FORMAT=COMPACT<br></code></pre></td></tr></table></figure>
+
+<p>这里以 COMPACT 格式为例，它的结构如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614259522989-1614259522960.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h5 id="变长字段长度列表"><a href="#变长字段长度列表" class="headerlink" title="变长字段长度列表"></a>变长字段长度列表</h5><p>顾名思义，这个结构用来存储这一行里变长字段的长度，唯一需要注意的是这个列表是按表结构逆序排序的，假如一个表结构如下：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `hotsong` (<br>  `id` <span class="hljs-type">int</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>  `<span class="hljs-type">name</span>` <span class="hljs-type">varchar</span>(<span class="hljs-number">50</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>  `song_id` <span class="hljs-type">int</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>  `download_link` <span class="hljs-type">varchar</span>(<span class="hljs-number">100</span>) <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `singer` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  <span class="hljs-keyword">PRIMARY KEY</span> (`id`)<br>) ENGINE=InnoDB <span class="hljs-keyword">DEFAULT</span> CHARSET=utf8mb4 <span class="hljs-keyword">COLLATE</span>=utf8mb4_0900_ai_ci;<br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>name, download_link, singer</code> 的类型是 <code>varchar</code>, 属于变长字段，如果向该表中插入一条记录，其中 <code>name, download_link, singer</code> 的长度分别为 1， 2， 3， 则在变长字段长度列表中会存储 3， 2， 1。</p>
+<p>对于列表中该使用多少字节存储一个字段的长度，这取决于表采用的字符集和该类型能存储的最大字节数，如上表，字符集是 utf8mb4, 该字符集最多使用四个字节表示一个字符，而定义中， <code>name</code> 最多存储 50 个字符，所以这些字段能存储最多 4 * 50 &#x3D; 200 字节的数据，所以用一个字节就可以表示其长度了，而 <code>download_link</code> 最多存储 100 个字符，则需要两个字节来表示其长度了。这里最多也只会使用两个字节，如果某个字段长度特别长，就需要使用溢出字段了，也就是在这一页中只会存部分数据。</p>
+<p>变长字段列表只会存不为 NULL 的列的长度，NULL 列会表现在下面的 NULL 值列表中。</p>
+<h5 id="NULL-值列表"><a href="#NULL-值列表" class="headerlink" title="NULL 值列表"></a>NULL 值列表</h5><p>很好理解，NULL　值列表类似于一个 BitＭap 表明了这一行中哪写列是 NULL，这些为 NULL 的列是不会占额外的空间的，存记录时， InnoDB 会去查看表格式，看允许为 NULL 的列有多少个，如上面的 <code>hotsong</code> 表，只有两个字段允许为 NULL，那 NULL 值列表就会占用一个字节（必须占用整数字节，高位填0），最低两位用来表示 <code>singer</code> 和 <code>download_link</code>， 这里和长度列表一样，也是逆序排列的，值为 0 时，代表该字段不为 NULL。</p>
+<h5 id="记录头信息"><a href="#记录头信息" class="headerlink" title="记录头信息"></a>记录头信息</h5><p>记录头信息里，我们暂且关注这几个字段：</p>
+<ul>
+<li><p><code>delete_flag</code>: 标识这条记录是否被删除，在 Page Header 那已经说过了，这就是那个标志位，为 1 表示被删除。</p>
+</li>
+<li><p><code>n_owner</code>: 与页目录有关，页中的记录会被分成若干组，这个字段表示这一组中的记录数。</p>
+</li>
+<li><p><code>heap_no</code>: 这条记录在页堆中的偏移。</p>
+</li>
+<li><p>&#96;&#96;&#96;<br>record_type</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><br>  : 记录类型：<br><br><span class="hljs-bullet">  -</span> 0： 普通记录<br><span class="hljs-bullet">  -</span> 1：B+ 树非叶子节点目录项记录<br><span class="hljs-bullet">  -</span> 2：Infimum 记录<br><span class="hljs-bullet">  -</span> 3：Supermum 记录<br><br><span class="hljs-bullet">-</span> <span class="hljs-code">`next_record`</span>: 下一个记录（主键大小上的下一条）的相对位置，通过这个字段，页面中的每条记录都像是使用链表连起来了。<br><br>回到索引页的 User Records 上，通过上面行格式的介绍，我们知道每一条记录的长度是不一样的，并且他们通过 <span class="hljs-code">`next_record`</span> 链在了一起，所以记录在 User Records 中是像下面这样存储的：<br><br>![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614263144987-1614263144943.png</span>)<br><br>记录一条一条紧密排列，这个结构被称之为 Heap(堆)， 记录在这个堆中的相对位置就是上面记录头信息里的 <span class="hljs-code">`heap_no`</span>, <span class="hljs-code">`next_record`</span> 指的也是下一条记录的偏移，而不是真的一个链表指针。<br><br>除此之外，InnoDB 的设计者在每一个堆中加入了两条特殊记录：Infimum 和 Supermum，他们的 <span class="hljs-code">`heap_no`</span> 分别为 0 和 1，这两条记录很简单，只有记录头信息和代表这两个单词的记录体，这两个特殊记录代表了这一页中最大和最小的记录，也就是说，通过 Infimum 的 next<span class="hljs-emphasis">_record 找到的是堆中的第一条用户记录，堆中的最后一条用户记录的 next_</span>record 指向了 Supermum, 如果把紧密排列的堆变成链表的样子，他应该是这样的：<br><br>![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614263919072-1614263919054.png</span>)<br><br>关于 <span class="hljs-code">`next_record`</span> 他还有一个非常重要的特性，就是它允许为负，表示当前记录的下一条记录在它前面，这里的下一条是主键大小排列上的下一条，比如页中有一个主键值为 5 的记录 A（长度为 len<span class="hljs-emphasis">_A*l<span class="hljs-strong">**e**</span>n<span class="hljs-strong">**A*），我们又插入了一条主键值为 6 的记录 B（长度为 len_B*l**</span>e<span class="hljs-strong">**n**</span>B*），那么 A 的 next_</span>record 就是 +len<span class="hljs-emphasis">_A+*l<span class="hljs-strong">**e**</span>n<span class="hljs-strong">**A* 表示沿着记录 A 向后寻找 len_A*l**</span>e<span class="hljs-strong">**n**</span>A* 个字节就是记录 B，但这时如果我们又插入了一条主键值为 4 的记录 C，那 C 的 next_</span>record 就是 -(len<span class="hljs-emphasis">_A + len_</span>B)−(<span class="hljs-emphasis">*l<span class="hljs-strong">**e**</span>n<span class="hljs-strong">**A*+*l**</span>e<span class="hljs-strong">**n**</span>B*</span>) 也就是向前找能找到 C 的下一条记录 A。<br><br>这样的好处是通过 <span class="hljs-code">`next_record`</span> 页中的所有记录会组成一个按主键排序的有序链表，但在物理上，记录还是按插入顺序紧密排列的，配合下面的页目录，能提高页内记录的检索速度。<br><br><span class="hljs-section">### Page Directory</span><br><br>我们知道，索引的存在是为了快速定位到记录所在的页，但定位到页后呢，一页里可能包含许多记录，遍历页中的所有记录同样是不可接受的，所以 InnoDB 设计了页目录，相当于页索引，它的工作原理如下：<br><br><span class="hljs-bullet">1.</span> 将所有未删除的记录（包括Infimum 和 Supermum）划分为多个组。<br><span class="hljs-bullet">2.</span> 将每组中的最后一条记录的偏移提取出来放在 Page Directory 中。<br><span class="hljs-bullet">3.</span> 当查找页中的某条记录时，先通过二分法查找到该记录在哪一组中，然后找到这一组中最小的那条记录，沿着 next<span class="hljs-emphasis">_record 往下遍历这一组的记录。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">这里 Page Directory 中的每一个偏移量被叫做一个 <span class="hljs-strong">**槽**</span>， 一个槽占 2 字节，记录分组的原则是：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">- Infimum 独占一组</span><br><span class="hljs-emphasis">- Supermum 那一组只能有 1~8条记录</span><br><span class="hljs-emphasis">- 其他组只能有 4 ~ 8 条记录</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">这样一来，页中最多遍历 8 次，就可以找到（确认找不到）某条记录了，能这样做的前提，还是通过 `next_</span>record` 记录组成了一个有序链表。<br><br>还有一个有趣的问题，槽中记录的是一组中最大的记录的偏移，但定位到组后，需要的是最小的记录，该怎么办呢？上一个槽的下一条记录不就是吗。<br><br><span class="hljs-section">### 总结</span><br><br>第一节 <span class="hljs-strong">**数据目录**</span> 我们站在操作系统的角度，说 InnoDB 是把数据存储在数据目录下的文件中的，这一节，我们从聚簇索引的一个节点（页）出发，说明了一条记录是怎样被存放的，关键点如下：<br><br><span class="hljs-bullet">1.</span> 所有数据被存放在表聚簇索引的叶子节点上。<br><span class="hljs-bullet">2.</span> 索引的一个节点就是一页，大小为 16KB，页是 InnoDB 内存分配的基本单位。<br><span class="hljs-bullet">3.</span> InnoDB 中，页有很多种，索引的节点对应的页类型叫索引页。<br><span class="hljs-bullet">4.</span> 索引页由文件头，页头，用户记录，页目录，文件尾等部分组成。<br><span class="hljs-bullet">5.</span> 通过文件头，页和页可以以双链表的形式连接起来。<br><span class="hljs-bullet">6.</span> 页头记录了页中的一些统计信息。<br><span class="hljs-bullet">7.</span> 用户记录段是存储用户记录的地方，每条记录被紧密地存储在这，称为堆。<br><span class="hljs-bullet">8.</span> 每条用户记录都有一个重要的 <span class="hljs-code">`next_record`</span> 字段，他能保证紧密排列地用户记录能按主键大小组织成一个有序链表。<br><span class="hljs-bullet">9.</span> 有两条特殊的记录 Infimum 和 Supermum被安排在堆中，他们处于堆中最前的位置，但分别表示最大最小的记录。<br><span class="hljs-bullet">10.</span> 页目录是为了提高页内记录检索的速度而存在的，堆中的记录最多会 8 个为一组，每一组中最大的记录偏移量会被存放在页目录中，称为槽，查找记录时，会先通过二分法定位到组，然后在组内遍历。<br><span class="hljs-bullet">11.</span> 文件尾用来校验数据。<br><br>最后，放上索引页的整体图：<br><br>![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614267559935-1614267559906.png</span>)<br><br>接下来，我们要把页和数据目录结合起来，了解页是怎么在表空间中组织的。<br><br><span class="hljs-section">## InnoDB 表空间</span><br><br>在 MySQL 5.6.6 之后， InnoDB 有了独立表空间的概念，每张表对应一个独立表空间（一个 ibd 文件），而系统表空间（ibdata1）则主要用来存储一些公有的信息，这一节，我们以页为单位，看一看 InnoDB 是怎么在表空间中管理每个页的。<br><br><span class="hljs-section">### 页回顾</span><br><br>上面多次说过，页是 InnoDB 分配内存的基本单位，一页大小 16KB，页有许多不同的类型，如：<br><br><span class="hljs-bullet">-</span> Index 页，上面已经说过。<br><span class="hljs-bullet">-</span> Inode 页，用来存储段信息。<br><span class="hljs-bullet">-</span> XDES 页，存储区信息。<br><span class="hljs-bullet">-</span> FPS<span class="hljs-emphasis">_HDR 页，存储表空间头部信息。</span><br><span class="hljs-emphasis">- IBUF_</span>BITMAP 页：存储 Change Buffer 相关的内容。<br><br>除了这几个，其实还有许多种类型的页，但其余的和本文关系不大，我们只关心这几种页就好了。<br><br>上面说 Index 页时讲了它的格式，事实上，<span class="hljs-code">`File Header`</span> 和 <span class="hljs-code">`File Trailer`</span> 是所有页面类型所共有的，在后面介绍其他页面类型的结构时，就不赘述了。<br><br><span class="hljs-section">### 区 , 组和段</span><br><br>前面说过，页是 InnoDB 分配存储空间最小的单位，但问题在于页太小了，只有 16KB，在表中数据非常多时，如果继续以页为单位分配，就可能造成页与页间的物理距离过大，虽然页和页之间是通过指针连接的，但在使用传统机械硬盘时，物理距离大就意味着根据一个页的 Next 指针找到下一个页磁头需要移动更多的距离（随机 IO），造成页和页虽然在逻辑上连续，但在物理上分散，这样不利于高效地数据读写。为了尽量避免这种情况，InnoDB 会尽量让逻辑上相连的页在物理内存上也连续（顺序IO），具体做法就是当表中的数据量很大时，就以更大的 <span class="hljs-strong">**区（extent）\**</span>为单位为表分配存储空间，InnoDB 规定连续的 64 个页是一个区，也就是一个区占 1M 的空间。同时，为了方便管理这些区，将连续的 256 个区被划分为一\<span class="hljs-strong">**组**</span>，每一组的开始几个页面类型是固定的：<br><br>对于表空间中第一个组的前三个页面类型是固定的，他们依次是：<br><br><span class="hljs-bullet">1.</span> FPS<span class="hljs-emphasis">_HDR 页：记录表空间的整体属性和这一组中 256 个区的整体属性。</span><br><span class="hljs-emphasis">2. IBUF_</span>BITMAP 页：存储 Change Buffer 相关的内容。<br><span class="hljs-bullet">3.</span> INODE 页：存储与段相关的内容。<br><br>对于其他组，它的前两个页面类型是固定的，依次是：<br><br><span class="hljs-bullet">1.</span> XDES 页：记录这一组中说有区的属性<br><span class="hljs-bullet">2.</span> IBUF<span class="hljs-emphasis">_BITMAP 页：存储 Change Buffer 相关的内容。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">所以独立表空间的结构类似于下图：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614314976326-1614314976316.png</span>)</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">蓝色的表示一个组，大小为 256 MB， 绿色的表示一个区，大小为 1M， 红色的表示一个页，大小为 16KB。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">##### 段</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">&gt; 区存在的意义是尽量让页面链表中相邻的页在物理位置上也相邻，这样在扫描叶子节点的大量记录时，才可以使用顺序IO。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">引入区是为了加快扫描叶子节点时的速度，但事实上不管是叶子节点还是非叶子节点，他们的页类型都是 Index, 非叶子节点间也是有链表连起来的，只是我们一般用不到这些指针而已，所以如果把叶子节点和非叶子节点都放在区里面，扫描的性能又会大打折扣了，为此，InnoDB 引入了<span class="hljs-strong">**段**</span>，这是一个逻辑上的概念，每个索引（聚簇索引或二级索引）都有两个段，分别用来存放叶子节点和非叶子节点。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">当表中的数据很少时，段会以页为单位申请存储空间，这些零散的页所在的区叫做<span class="hljs-strong">**碎片区**</span>，它直属于表空间。当表中的数据占了 32 个零散的页面后，段会以完整的区为单位分配存储空间，但之前存储在零散页面的数据并不会被移动过去。这样做的目的是尽量减少浪费。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">所以<span class="hljs-strong">**段是一些零散的页面以及一些完整的区构成的集合**</span>。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">##### 区的分类</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">有了段后，区就可以被分为下面几类：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">1. 空闲区（FREE）：完全没有被使用的区。</span><br><span class="hljs-emphasis">2. 有空闲的碎片区（FREE_</span>FRAG）: 区中的部分页面被用作段的零散页面，但还有空闲的页。<br><span class="hljs-bullet">3.</span> 无空闲的碎片区（FUEE<span class="hljs-emphasis">_FRAG）: 所有页面都被用了的碎片区。</span><br><span class="hljs-emphasis">4. 完整分配给某个段的区（FSEG）：当表中的数据占了 32 页后，段会以完整的区为单位分配空间，这些区就是 FSEG。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">##### XDES Entry</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">为了管理这些区，InnoDB 设计了一个大小为 40 字节的 `XDES Entry` ，它的结构如下：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">| XDES Entry 结构                                              | List Node 结构                                               |</span><br><span class="hljs-emphasis">| ------------------------------------------------------------ | ------------------------------------------------------------ |</span><br><span class="hljs-emphasis">| ![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614403201285-1614403201281.png</span>) | ![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614423348895-1614423348889.png</span>) |</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">- Segment ID: 对于一个 FSEG 类型的区，Segment ID 用来标识它被分配给了哪个段。</span><br><span class="hljs-emphasis">- List Node: 通过这个结构，XDES Entry 能连成一个链表。</span><br><span class="hljs-emphasis">  - Prev Node Page Number, Prev Node Offset: 上一个 XDES Entry 所在的页面和在页面内的偏移，通过这两个字段，可以在表空间中找到上一个 XDES Entry.</span><br><span class="hljs-emphasis">  - NextNode Page Number, Next Node Offset: 下一个 XDES Entry 。</span><br><span class="hljs-emphasis">  - 这个链表链接的是<span class="hljs-strong">**相同状态的区对应的 XDES Entry**</span>， 也就是说，如果一个 XDES Entry 对应的区是 FREE 状态的，那么根据它的 Next 和 Prev 指针拿到的 XDES Entry 对应的区也是 FREE 状态的。如此一来，不同类型区对应的 XDES Entry 就会被组织成不同的链表，通过这些链表的头节点（保存在固定的地方），我们就可以快速获得一个需要的区或碎片页（由于 FSEG 类型的区已经分配给段了，所以这里的链表不包括这种类型的，FSEG 类型的区会在段内链接成别的链表，马上会说到）。</span><br><span class="hljs-emphasis">- State：表示这个区的状态。</span><br><span class="hljs-emphasis">- Page State Bitmap: 没两位对应区中的一页的状态， 00 表示这一页空闲， 01表示不空闲。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">有了 XDES Entry 后，向表空间申请页插入新记录的的过程就是这样的了：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">1. 如果表中数据不多（不足 32 页），就从 FREE_</span>FRAG 链表中找到一个 FREE<span class="hljs-emphasis">_FRAG 状态的区，并通过 Page State Bitmap 找到一个空闲的页分配给表（实际上是分配给索引或者说分配给段）之后把记录插进去，如果没有 FREE_</span>FRAG 状态的区，就通过 FREE 链表找到一个 FREE 状态的区，将其中的一页分配给段，并将这个区对应的 XDES Entry 从 FREE 链表移动到 FREE<span class="hljs-emphasis">_FRAG 链表中。</span><br><span class="hljs-emphasis">2. 如果表中的数据到了 32 页，就需要以区为单位给段分配空间，这时只需要根据 FREE 列表找到一个 FREE 分配给段即可。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">##### Inode Entry</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">类似于 XDES Entry，InnoDB 为每个段设计了一个 Inode Entry 结构，这个结构记录了该段的一些必要信息，它的结构如下：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614431671386-1614431671350.png</span>)</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">上面说过，段是由一些整块的区和一些零碎的页组成的逻辑上的结构，Inode Entry 记录的就是这些信息，对于段中整块的区，InnoDB 将其分成了三类：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">- FREE 区：完全没有使用的区，刚刚分配的。</span><br><span class="hljs-emphasis">- NOT_</span>FULL 区：还有空页面的区。<br><span class="hljs-bullet">-</span> FULL 区：没有空页面的区。<br><br>这三类区对应的 XDES Entry 结构也会组成一个链表（从上面的区的分类来看，他们都是 FSEG 类型的），Inode Entry 中的 List Base Node For FREE List, List Base Node For NOT<span class="hljs-emphasis">_FULL List, List Base Node For FULL List 对应的就是这三个链表的头节点， NOT_</span>FULL<span class="hljs-emphasis">_N_</span>USED 字段储存的就是 NOT<span class="hljs-emphasis">_FULL 链表中已经使用了多少页面了。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">Magic Number 字段用来标记 Inode Entry 是不是已经被初始化了，值为 97937874 时，表示已经初始化了（确实是 Magic Number）</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">下面的 32 个 Fragment Array Entry 每个占四字节，用来存储段中 32 个零碎页的页号。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">Segment ID 用来记录这个段的唯一 ID。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">##### 小结</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">页是分配存储空间的最小单位，但页太小了，在数据量特别大时，如果依然以页为单位分配，可能导致逻辑上相邻的两个页在物理上相隔很远，这样在遍历叶子节点时就会造成大量的随机 IO，为此，InnoDB 规定当表中数据占用空间小于 32 页时，从碎片区中以页为单位分配，当超过 32 个页后，就以更大的区（连续的 64 个页）为单位分配存储空间，每个区由一个 XDES Entry 结构管理，不同状态的 XDES Entry 结构通过 List Node 链接成一个链表，也就看一看作是不同状态的区链成了不同的链表，在分配区或碎片页时，就可以直接从对应链表获取到对应的区了。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">为了进一步减少随机 IO，InnoDB 还引入一个逻辑上的概念 “段”，每个索引对应两个段，分别是叶子节点段和非叶子节点段，每个段实际上是一些碎片页和一些整块的区（FSEG 状态）的集合，每个段由一个 Inode Entry 结构管理，在段里，完整的区也会被分成三类，每类使用单独的链表链接。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">### 页面类型</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">上面说的 XDES Entry, Inode Entry 是被存储在特定的页面类型中的，他们分别是 `XDES 页`， `Inode 页` 和 `FSP_</span>HDR 页`， 他们的结构如下：<br><br>| XDES 页                                                      | INODE 页                                                     | FPS<span class="hljs-emphasis">_HDR 页                                                   |</span><br><span class="hljs-emphasis">| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |</span><br><span class="hljs-emphasis">| ![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614433995819-1614433995793.png</span>) | ![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614433969866-1614433969862.png</span>) | ![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/1614433969866-1614433969862.png</span>) |</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">除了熟悉的 XDES Entry 和 Inode Entry 外， File Header 和 File Tialer 是所有页面共有的，在索引页那已经说过，剩下的就是 INODE 页的 `List Node For INODE Page List` 和 FSP_</span>HDR 页的 <span class="hljs-code">`File Space Header`</span> 了。<br><br><span class="hljs-section">#### List Node For INODE Page List</span><br><br>上面说过，INODE 页是表空间的第一组（第一个区）的第三个页，里面的核心结构式 Inode Entry, 用来描述段信息，但这样一页只能有 85 个 Inode Entry, 如果一张表里的段数量超过85个（索引数量超过 42 ）时，就需要额外的 INODE 页来存储这些 Inode Entry 了， 根据这个 List Node For INODE Page List 字段就找到别的 INDOE 页，它的结构如下：<br><br>![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614434533279-1614434533275.png</span>)<br><br><span class="hljs-section">#### File Space Header</span><br><br>关于 FSP<span class="hljs-emphasis">_HDR 页面，前面也说过了，它类似于 XDES 页面，存储了本组 256 个区的信息，除此之外，他是表空间的第一个页面，因此还存储了表空间的一些通用信息，这些信息就被存储在 File Space Header 里，它的结构如下：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">![<span class="hljs-string">img</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/520MianXiangDuiXiang520/cdn@master/img/1614434809359-1614434809355.png</span>)</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">1. Space ID: 表空间 ID</span><br><span class="hljs-emphasis">2. Size：表空间拥有的页面数</span><br><span class="hljs-emphasis">3. FREE Limit: 未被初始化的最小页号，大于或等于该页号的区对应的 XDES Entry 都没被加入 FREE 链表, 每个表空间对应的其实是一个自增长的 ibd 文件（当然可以在建表时直接指定一个非常的文件），这些表空间中可能有大量未使用的区，InnoDB 不会把所有空闲区一股脑的加入 FREE 链表，而是会等到空闲区不够时，再加一批到链表中，加入到链表中的就是被初始化了，反之就是未初始化。</span><br><span class="hljs-emphasis">4. Space Flags: 一些标志字段</span><br><span class="hljs-emphasis">5. FRAG_</span>N<span class="hljs-emphasis">_USED: 类似于 Inode Entry 中的 NOT_</span>FULL<span class="hljs-emphasis">_N_</span>USED, 表示 FREE<span class="hljs-emphasis">_FRAG链表中有多少页面被使用了。</span><br><span class="hljs-emphasis">6. List Base Node for FREE List: 上面说 FREE 链表的根节点被保存在固定的地方，就是这。</span><br><span class="hljs-emphasis">7. List Base Node for FREE_</span>FRAG List：FREE<span class="hljs-emphasis">_FRAG 链表根节点。</span><br><span class="hljs-emphasis">8. List Base Node for FULL_</span>FRAG List：FULL<span class="hljs-emphasis">_FRAG 链表根节点。</span><br><span class="hljs-emphasis">9. Next Unused Segment ID: 每个段都有一个唯一 ID，这个字段表示下一个可以分配的段ID。</span><br><span class="hljs-emphasis">10. List Base Node for SEG_</span>INODES<span class="hljs-emphasis">_FULL：上面说，INODE 类型的页面可能有多个，由 `List Node For INODE Page List` 连接，这些 INODE 页也会依据有没有满链成两个链表：`SEG_</span>INODES<span class="hljs-emphasis">_FULL` 和 `SEG_</span>INODES<span class="hljs-emphasis">_FREE`, 这个字段就是 SEG_</span>INODES<span class="hljs-emphasis">_FULL 链表的头节点。</span><br><span class="hljs-emphasis">11. List Base Node for SEG_</span>INODES<span class="hljs-emphasis">_FREE: SEG_</span>INODES<span class="hljs-emphasis">_FREE 链表的头节点。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">### 总结</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">最后，祭上大图吧</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">![<span class="hljs-string">大三下 (1).svg</span>](<span class="hljs-link">https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/16d6dfe6-2353-406b-87d0-61c9d5f24837.svg</span>)</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">## 系统表空间</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">上面介绍了独立表空间的结构，它对应于数据库里的每一张表，但还有一些问题没有解决，比如如何确定哪张表对应哪个表空间等，这就需要系统表空间，一个 MySQL 服务只会对应一个系统表空间，它是 MySQL 服务的第一个表空间， Space ID 为 0， 记录了整个系统属性的相关信息，第一个组中的前七个页面类型分别为：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">1. FSP_</span>HDR<br><span class="hljs-bullet">2.</span> IBUF<span class="hljs-emphasis">_BITMAP</span><br><span class="hljs-emphasis">3. SYS_</span>insert buffer header<br><span class="hljs-bullet">4.</span> INODE<span class="hljs-emphasis">_insert buffer root</span><br><span class="hljs-emphasis">5. TRX_</span>SYS: 存储事务系统相关信息<br><span class="hljs-bullet">6.</span> SYS<span class="hljs-emphasis">_first rollback segment: 第一个回滚段信息</span><br><span class="hljs-emphasis">7. SYS_</span>data dictionary header: 数据字段头部信息<br><br>这里简单介绍与 Change Buffer 相关的 IBUF<span class="hljs-emphasis">_BITMAP， SYS_</span>insert buffer header 和 INODE<span class="hljs-emphasis">_insert buffer root 以及数据字典相关的 SYS_</span>data dictionary header， 其他字段都用于事务。<br><br><span class="hljs-section">### Change Buffer</span><br><br>其实 IBUF<span class="hljs-emphasis">_BITMAP 类型的页面在独立表空间也一直出现过，它实质上也是一棵 B+ 树，当我们往表中插入一条记录时，首先完整的记录会被插入到聚簇索引的叶子节点上，其次还需要更新所有二级索引，但这些索引随机处在表空间的不同地方，每次修改这些索引可能引起许多随机 IO，这会影响数据写入的效率，为此，当执行二级索引写入操作时，如果 InnoDB 发现二级索引对应的页面没在内存中，就会暂时把修改数据写到 Change Buffer 里，等服务器空闲时，再把数据写到二级索引对应的页里。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">其中，系统表空间的 SYS_</span>insert buffer header 字段用于存储 Change Buffer 的头部信息， INODE<span class="hljs-emphasis">_insert buffer root 用于存储 Change Buffer 的根节点。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">### 数据字典</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">InnoDB 的数据字典保存了许多重要的<span class="hljs-strong">**元数据**</span>， 包括：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">- 表对应的表空间；</span><br><span class="hljs-emphasis">- 表中有多少列，每一列的类型是什么；</span><br><span class="hljs-emphasis">- 表中有多少索引，索引的字段，索引根节点对应的页面；</span><br><span class="hljs-emphasis">- 外键信息等……</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">这些信息是为了更好的管理用户信息而存在的，InnoDB 将他们放在一些内部表中，比较重要的有：</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">1. SYS_</span>TABLES: 存储所有表信息<br><span class="hljs-bullet">2.</span> SYS<span class="hljs-emphasis">_COLUMNS: 存储所有列信息</span><br><span class="hljs-emphasis">3. SYS_</span>INDEXS: 存储所有索引xinx<br><span class="hljs-bullet">4.</span> SYS<span class="hljs-emphasis">_FIELDS: 存储所有索引对应的列信息</span><br><span class="hljs-emphasis">5. SYS_</span>TABLESPACES: 存储所有表空间信息<br><span class="hljs-bullet">6.</span> ……<br><br>其中，前四个表被称为四个基本表，使用这四个表，我们就可以获取其他系统表和用户数据了，比如更具表名就可以在 SYS<span class="hljs-emphasis">_TABLES 表里获取到 Table ID, 根据 ID 到 SYS_</span>COLUMNS 就可以获取到所有列信息，还可以到 SYS<span class="hljs-emphasis">_FIELDS 和 SYS_</span>INDEXS 获取到索引信息……<br><br><span class="hljs-quote">&gt; 具体操作要看这四张表的具体结构</span><br><br>其他表可以使用这四张表定位，那这四张表该怎么定位呢？答案是硬编码，这四张表的信息被硬编码到了系统表空间的第七页上，也就是 SYS<span class="hljs-emphasis">_data dictionary header 关于这一页的结构就不赘述了。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">需要注意的是，这些内部系统表用户是不能直接访问的，但 InnoDB 为了用户能更好的使用存储引擎，提供了这些内部表的映射，对应数据库 `information_</span>schema<span class="hljs-code">`, 这里面有一些 INNODB 开头的表， 如 `</span>INNODB<span class="hljs-emphasis">_TABLES` 的表结构如下：</span><br><span class="hljs-emphasis"></span><br></code></pre></td></tr></table></figure>
+<p>CREATE TEMPORARY TABLE <code>INNODB_TABLES</code> (<br><code>TABLE_ID</code> bigint(21) unsigned NOT NULL DEFAULT ‘0’,<br><code>NAME</code> varchar(655) NOT NULL DEFAULT ‘’,<br><code>FLAG</code> int(11) NOT NULL DEFAULT ‘0’,<br><code>N_COLS</code> int(11) NOT NULL DEFAULT ‘0’,<br><code>SPACE</code> bigint(21) NOT NULL DEFAULT ‘0’,<br><code>ROW_FORMAT</code> varchar(12) DEFAULT NULL,<br><code>ZIP_PAGE_SIZE</code> int(11) unsigned NOT NULL DEFAULT ‘0’,<br><code>SPACE_TYPE</code> varchar(10) DEFAULT NULL,<br><code>INSTANT_COLS</code> int(11) NOT NULL DEFAULT ‘0’<br>) ENGINE&#x3D;MEMORY DEFAULT CHARSET&#x3D;utf8;</p>
+</li>
+</ul>
+<p>&#96;&#96;&#96;</p>
+<ul>
+<li>TABLE_ID: 表ID</li>
+<li>NAME：表名</li>
+<li>FLAG：有关表格式和存储特性的位级信息数据，包括行格式，压缩页大小（如果适用）以及DATA DIRECTORY子句是否与CREATE TABLE或ALTER TABLE一起使用等，参考 <a href="https://link.zhihu.com/?target=https://dev.mysql.com/doc/refman/5.7/en/innodb-sys-tables-table.html">24.32.22 The INFORMATION_SCHEMA INNODB_SYS_TABLES Table</a></li>
+<li>N_COLS: 表中有多少列</li>
+<li>SPACE：表所属表空间 ID</li>
+<li>ROW_FORMAT：行格式，默认为 Dynamic</li>
+<li>ZIP_PAGE_SIZE: 压缩页大小</li>
+<li>SPACE_TYPE: 表所属的表空间类型。可能的值包括：System(系统表空间)、General(普通表空间)、Single(独立表空间)</li>
+<li>INSTANT_COLS：8.0 之后的新特性，表示插入的列的个数，参考 <a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/670691">MySQL8.0 - 新特性 - Instant Add Column</a></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>InnoDB 的完整数据存放在聚簇索引的叶子节点上，索引的一个节点就是一页，为了减少随机 IO，当表中的数据很多时，会一次性分配连续的 64 页，称为一个区，每个区由一个 XDES Entry 结构管理，根据区的状态，这些 XDES Entry 会链成不同的链表，链表头节点保存在表空间的第一个页面上，除此之外，为了尽可能保证叶子节点在物理内存上连续， InnoDB 把叶子节点和非叶子节点通过段分开，每个段由 Inode Entry 管理。</p>
+<p>当定位到页后，InnoDB 还提供了页目录来提高页内检索速度。</p>
+<p>MySQL 服务共有的信息被存储在系统表空间中，最重要的是 InnoDB 数据字典，通过它，我们才可以获取到表空间中的记录。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MySQL/">#MySQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>InnoDB是如何存储数据的</div>
+      <div>https://dlddw.xyz/2022/07/01/mysql是如何存数据的/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Deepblue</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/01/Mysql%E4%BA%8B%E5%8A%A1/" title="MySQL中的事务">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL中的事务</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/01/HTTP/" title="HTTP协议详解(HTTP、HTTP2、HTTP3)">
+                        <span class="hidden-mobile">HTTP协议详解(HTTP、HTTP2、HTTP3)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

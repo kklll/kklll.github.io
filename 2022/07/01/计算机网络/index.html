@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Deepblue">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="首先看看模型（从下到上）  物理层在物理层上所传送的数据单位是比特。 物理层(physical layer)的作用是实现相邻计算机节点之间比特流的透明传送，尽可能屏蔽掉具体传输介质和物理设备的差异。 使其上面的数据链路层不必考虑网络的具体传输介质是什么。“透明传送比特流”表示经实际电路传送后的比特流没有发生变化，对传送的比特流来说，这个电路好像是看不见的。 数据链路层协议：PPP、CSMA&amp;#x2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机网络复习">
+<meta property="og:url" content="https://dlddw.xyz/2022/07/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="Deepblue的博客小站">
+<meta property="og:description" content="首先看看模型（从下到上）  物理层在物理层上所传送的数据单位是比特。 物理层(physical layer)的作用是实现相邻计算机节点之间比特流的透明传送，尽可能屏蔽掉具体传输介质和物理设备的差异。 使其上面的数据链路层不必考虑网络的具体传输介质是什么。“透明传送比特流”表示经实际电路传送后的比特流没有发生变化，对传送的比特流来说，这个电路好像是看不见的。 数据链路层协议：PPP、CSMA&amp;#x2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008162810.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/files/20201008154843.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009194741.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008163717.jpeg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181435.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181721.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181958.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190152.webp">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190443.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190515.webp">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190752.webp">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009172301.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173127.jpeg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/%E8%B6%85%E6%97%B6%E9%87%8D%E4%BC%A0.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173703.jpeg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173902.png">
+<meta property="og:image" content="https://www.isqqy.com/img/post/2019/20190503/dns-parse.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009193628.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009194303.webp">
+<meta property="article:published_time" content="2022-07-01T12:46:25.000Z">
+<meta property="article:modified_time" content="2022-07-02T15:56:55.231Z">
+<meta property="article:author" content="Deepblue">
+<meta property="article:tag" content="计算机网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008162810.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>计算机网络复习 - Deepblue的博客小站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dlddw.xyz","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>DeepBlue</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="计算机网络复习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-01 20:46" pubdate>
+          2022年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          73 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">计算机网络复习</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2022年7月2日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="首先看看模型（从下到上）"><a href="#首先看看模型（从下到上）" class="headerlink" title="首先看看模型（从下到上）"></a>首先看看模型（从下到上）</h3><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008162810.png" srcset="/img/loading.gif" lazyload alt="七层模型总"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/files/20201008154843.png" srcset="/img/loading.gif" lazyload alt="OSI七层模型与TCP/IP五层模型"></p>
+<h3 id="物理层"><a href="#物理层" class="headerlink" title="物理层"></a>物理层</h3><p>在物理层上所传送的数据单位是比特。 <strong>物理层(physical layer)的作用是实现相邻计算机节点之间比特流的透明传送，尽可能屏蔽掉具体传输介质和物理设备的差异。</strong> 使其上面的数据链路层不必考虑网络的具体传输介质是什么。“透明传送比特流”表示经实际电路传送后的比特流没有发生变化，对传送的比特流来说，这个电路好像是看不见的。</p>
+<h3 id="数据链路层"><a href="#数据链路层" class="headerlink" title="数据链路层"></a>数据链路层</h3><p><strong>协议：PPP、CSMA&#x2F;CD</strong></p>
+<p>主要解决的问题：<strong>透明传输、封装成帧、差错检测</strong>，**<code>局域网</code>属于数据链路层的范畴**</p>
+<h4 id="封装成帧"><a href="#封装成帧" class="headerlink" title="封装成帧"></a>封装成帧</h4><p><strong>封装成帧就是在数据段的前后分别添加首部和尾部，这样就构成了一个帧。</strong></p>
+<h4 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h4><p><strong>其实就是对前面的帧定界符号进行字符填充，让其不会出现差错。</strong></p>
+<h4 id="差错检测"><a href="#差错检测" class="headerlink" title="差错检测"></a>差错检测</h4><p>方法：<strong>CRC冗余检验</strong></p>
+<p><strong>数据链路层(data link layer)通常简称为链路层。两台主机之间的数据传输，总是在一段一段的链路上传送的，这就需要使用专门的链路层的协议。</strong> 在两个相邻节点之间传送数据时，<strong>数据链路层将网络层交下来的 IP 数据报组装成帧</strong>，在两个相邻节点间的链路上传送帧。每一帧包括数据和必要的控制信息（如同步信息，地址信息，差错控制等）。</p>
+<p>在接收数据时，控制信息使接收端能够知道一个帧从哪个比特开始和到哪个比特结束。这样，数据链路层在收到一个帧后，就可从中提出数据部分，上交给网络层。 控制信息还使接收端能够检测到所收到的帧中有无差错。如果发现差错，数据链路层就简单地丢弃这个出了差错的帧，以避免继续在网络中传送下去白白浪费网络资源。如果需要改正数据在链路层传输时出现差错（这就是说，数据链路层不仅要检错，而且还要纠错），那么就要采用可靠性传输协议来纠正出现的差错。这种方法会使链路层的协议复杂些。</p>
+<h3 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h3><p><strong>在 计算机网络中进行通信的两个计算机之间可能会经过很多个数据链路，也可能还要经过很多通信子网。网络层的任务就是选择合适的网间路由和交换结点， 确保数据及时传送。</strong> 在发送数据时，网络层把运输层产生的报文段或用户数据报封装成分组和包进行传送。在 TCP&#x2F;IP 体系结构中，由于网络层使用 <strong>IP 协议</strong>，因此分组也叫 <strong>IP 数据报</strong> ，简称 <strong>数据报</strong>。</p>
+<p>这里要注意：<strong>不要把运输层的“用户数据报 UDP ”和网络层的“ IP 数据报”弄混</strong>。另外，无论是哪一层的数据单元，都可笼统地用“分组”来表示。</p>
+<p>这里强调指出，网络层中的“网络”二字已经不是我们通常谈到的具体网络，而是指计算机网络体系结构模型中第三层的名称.</p>
+<p>互联网是由大量的异构（heterogeneous）网络通过路由器（router）相互连接起来的。互联网使用的网络层协议是无连接的网际协议（Intert Protocol）和许多路由选择协议，因此互联网的网络层也叫做<strong>网际层</strong>或<strong>IP层</strong>。</p>
+<h4 id="IP地址"><a href="#IP地址" class="headerlink" title="IP地址"></a>IP地址</h4><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009194741.png" srcset="/img/loading.gif" lazyload alt="IP地址分类（A类B类C类D类E类）"></p>
+<p>A类地址范围：0.0.0.0—127.255.255.255</p>
+<p>B类地址范围：128.0.0.0—191.255.255.255</p>
+<p>C类地址范围：192.0.0.0—233.255.255.255</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008163717.jpeg" srcset="/img/loading.gif" lazyload alt="IP地址中A类、B类、C类地址范围"></p>
+<h4 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h4><p>主要作用：知道了主机或者路由器的IP地址想要知道MAC地址的话我们就要用到ARP解析。</p>
+<p>具体实现：</p>
+<ol>
+<li>首先主机会在本机存储一个ARP高速缓存中存放一个映射表</li>
+<li>ARP进程本局域网内发送一个ARP请求分组（广播方式），分组内容为我的IP地址是XXXXMAC地址为xxxx，我想知道IP地址为ＸＸＸ的硬件地址是谁</li>
+<li>本局域网内的所有主机都接收到这个请求</li>
+<li>如果某个主机的IP地址与其发送请求的IP地址对应的话，那么该主机会发送响应包，响应包内会有响应主机的MAC地址</li>
+<li>发送方收到响应包之后会把改IP地址与之对应的MAC地址写入到ARP高速缓存中。</li>
+</ol>
+<h4 id="路由协议"><a href="#路由协议" class="headerlink" title="路由协议"></a>路由协议</h4><ol>
+<li>内部网关协议有：<code>RIP</code> <code>OSPF</code> 外部网关协议：<code>BGP</code></li>
+</ol>
+<p>内部网关协议中的RIP协议：</p>
+<blockquote>
+<p>RIP是内为最早出现的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%B7%9D%E9%9B%A2%E5%90%91%E9%87%8F%E8%B7%AF%E7%94%B1%E5%8D%94%E5%AE%9A">距离向量路由协议</a>，RIP允许一条路径最多只能包含15个路由器，因此如果<strong>距离</strong>如果超过15就会显示不可达，（这里所说的距离指的是路由器到非直接连接的网络的距离），因此RIP协议只能用于规模比较小的互联网，RIP并不能在两个网络之间使用多条路由。</p>
+<p>特点：</p>
+<ol>
+<li>仅仅和相邻的路由器交换信息</li>
+<li>路由器交换的是当前本路由器知道的全部信息，即自己现在的路由表</li>
+<li>按照固定时间间隔交换路由信息</li>
+<li>当出现故障时需要很长的时间才能传递到所有本路由器（好消息传得快，坏消息传得慢）</li>
+</ol>
+</blockquote>
+<p>内部网关协议中的OSPF（Open Shortest Path First）协议：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/41341540">https://zhuanlan.zhihu.com/p/41341540</a></p>
+</blockquote>
+<p>外部网关协议中的BGP（Border Gateway Protocol）协议：</p>
+<blockquote>
+<p>它通过维护IP<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1%E8%A1%A8">路由表</a>或‘前缀’表来实现<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%87%AA%E6%B2%BB%E7%B3%BB%E7%BB%9F">自治系统</a>（AS）之间的可达性，属于矢量路由协议。BGP不使用传统的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%86%85%E9%83%A8%E7%BD%91%E5%85%B3%E5%8D%8F%E8%AE%AE">内部网关协议</a>（IGP）的指标，而使用基于路径、网络策略或规则集来决定路由。因此，它更适合被称为矢量性协议，而不是路由协议。</p>
+</blockquote>
+<h3 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h3><p><strong>运输层(transport layer)的主要任务就是负责向两台主机进程之间的通信提供通用的数据传输服务</strong>。应用进程利用该服务传送应用层报文。“通用的”是指并不针对某一个特定的网络应用，而是多种应用可以使用同一个运输层服务。由于一台主机可同时运行多个线程，因此运输层有复用和分用的功能。所谓复用就是指多个应用层进程可同时使用下面运输层的服务，分用和复用相反，是运输层把收到的信息分别交付上面应用层中的相应进程。</p>
+<p><strong>运输层主要使用以下两种协议:</strong></p>
+<ol>
+<li><strong>传输控制协议 TCP</strong>（Transmission Control Protocol）–提供<strong>面向连接</strong>的，<strong>可靠的</strong>数据传输服务。</li>
+<li><strong>用户数据协议 UDP</strong>（User Datagram Protocol）–提供<strong>无连接</strong>的，尽最大努力的数据传输服务（<strong>不保证数据传输的可靠性</strong>）。</li>
+</ol>
+<h4 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h4><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181435.png" srcset="/img/loading.gif" lazyload alt="image-20201008181434345"></p>
+<h4 id="TCP三次握手过程"><a href="#TCP三次握手过程" class="headerlink" title="TCP三次握手过程"></a>TCP三次握手过程</h4><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181721.png" srcset="/img/loading.gif" lazyload alt="image-20201008181719416"></p>
+<p><strong>为什么要三次握手呢？两次行吗？</strong></p>
+<p>当然不行，如果可以的话他就这么做了😄，那为什么最后还需要一次呢？</p>
+<p><strong>一句话，主要防止已经失效的连接请求报文突然又传送到了服务器，从而产生错误。</strong></p>
+<p>如果使用的是两次握手建立连接，假设有这样一种场景，客户端发送了第一个请求连接并且没有丢失，只是因为在网络结点中滞留的时间太长了，由于TCP的客户端迟迟没有收到确认报文，以为服务器没有收到，此时重新向服务器发送这条报文，此后客户端和服务器经过两次握手完成连接，传输数据，然后关闭连接。此时此前滞留的那一次请求连接，网络通畅了到达了服务器，这个报文本该是失效的，但是，两次握手的机制将会让客户端和服务器再次建立连接，这将导致不必要的错误和资源的浪费。</p>
+<p>如果采用的是三次握手，就算是那一次失效的报文传送过来了，服务端接受到了那条失效报文并且回复了确认报文，但是客户端不会再次发出确认。由于服务器收不到确认，就知道客户端并没有请求连接。</p>
+<h4 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h4><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008181958.png" srcset="/img/loading.gif" lazyload alt="image-20201008181955961"></p>
+<p><strong>为什么建立连接要三次，但是关闭连接要四次呢？</strong></p>
+<p>建立连接的时候， 服务器在LISTEN状态下，收到建立连接请求的SYN报文后，把ACK和SYN放在一个报文里发送给客户端。<br>而关闭连接时，服务器收到对方的FIN报文时，仅仅表示对方不再发送数据了但是还能接收数据，而自己也未必全部数据都发送给对方了，所以己方可以立即关闭，也可以发送一些数据给对方后，再发送FIN报文给对方来表示同意现在关闭连接，因此，己方ACK和FIN一般都会分开发送，从而导致多了一次。</p>
+<p><strong>为什么要有TIME_WAIT，而且还要等待2MSL（Maximum Segment Lifetime）</strong></p>
+<blockquote>
+<ol>
+<li>因为可能出现虽然客户端发送了最后的ACK信号，但是服务器并没有收到这个ACK，那么服务端会重发FIN请求，那么此时如果客户端关闭的话，就不能再发送ACK包，所以要等待TIME_WAIT时间，如果2MSL时间内没接收到服务器重传的FIN，证明要么服务器已经成功接收到了ACK报文，要么可能自己的网络出现异常了，比如断网了，那么这两种情况下关闭连接都是合理的选择（好像第二种情况下也就没得选择🤭）</li>
+<li>防止类似与“三次握手”中提到了的“已经失效的连接请求报文段”出现在本连接中。客户端发送完最后一个确认报文后，在这个2MSL时间中，就可以使本连接持续的时间内所产生的所有报文段都从网络中消失。这样新的连接中不会出现旧连接的请求报文。</li>
+</ol>
+</blockquote>
+<h4 id="TCP的流量控制——使用滑动窗口"><a href="#TCP的流量控制——使用滑动窗口" class="headerlink" title="TCP的流量控制——使用滑动窗口"></a>TCP的流量控制——使用滑动窗口</h4><p>首先明确一下流量控制的概念：<strong>流量控制就是让发送方的发送速率不要太快，让接收方能够来的及接收</strong>，TCP使用的流量控制方法就是<strong>使用滑动窗口来进行流量控制</strong></p>
+<p>例子：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190152.webp" srcset="/img/loading.gif" lazyload alt="实现"></p>
+<p>我们可看出灰色1号2号3号包已经发送完毕，并且已经收到Ack。这些包就已经是过去式。4、5、6、7号包是黄色的，表示已经发送了。但是并没有收到对方的Ack，所以也不知道接收方有没有收到。8、9、10号包是绿色的。是我们还没有发送的。这些绿色也就是我们接下来马上要发送的包。 可以看出我们的窗口正好是11格。后面的11-16还没有被读进内存。要等4号-10号包有接下来的动作后，我们的包才会继续往下发送。</p>
+<p><strong>正常情况</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190443.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>看到4号包对方已经被接收到，所以被涂成了灰色。“窗口”就往右移一格，这里只要保证“窗口”是7格的。 我们就把11号包读进了我们的缓存。进入了“待发送”的状态。8、9号包已经变成了黄色，表示已经发送出去了。接下来的操作就是一样的了，确认包后，窗口往后移继续将未发送的包读进缓存，把“待发送“状态的包变为”已发送“。</p>
+<p><strong>丢包情况</strong></p>
+<p>有可能我们包发过去，对方的Ack丢了。也有可能我们的包并没有发送过去。从发送方角度看就是我们没有收到Ack。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190515.webp" srcset="/img/loading.gif" lazyload alt="丢包"></p>
+<p>比如此时的5号报文，如果没有发过去的话，那么就需要进行重传5号报文，然后将滑动窗口移动。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201008190752.webp" srcset="/img/loading.gif" lazyload alt="超时重发"></p>
+<h4 id="TCP的拥塞控制"><a href="#TCP的拥塞控制" class="headerlink" title="TCP的拥塞控制"></a>TCP的拥塞控制</h4><p>拥塞控制的概念：<strong>防止过多的数据注入到网络中，造成网络中的路由器或者链路过载。</strong></p>
+<h5 id="慢开始"><a href="#慢开始" class="headerlink" title="慢开始"></a>慢开始</h5><blockquote>
+<p>发送方维持一个叫做拥塞窗口cwnd（congestion window）的状态变量。拥塞窗口的大小取决于网络的拥塞程度，并且动态地在变化。发送方让自己的发送窗口等于拥塞窗口，另外考虑到接受方的接收能力，发送窗口可能小于拥塞窗口。</p>
+</blockquote>
+<p>在刚刚发送报文时，先将cwnd设置为1到2个SMSS(Sender Maximum Segment Size)的数值，然后再没收到有一个新的报文段的确认之后可以把cwnd的数值增加，具体增加的公式为：<code>拥塞窗口cwnd增加量=min(N,SMSS)</code>这里的N指的是原先未被确认的，现在被确认的报文段所确认的字节数。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009172301.jpg" srcset="/img/loading.gif" lazyload></p>
+<p><strong>我们可以看到，慢开始算法没经过一个传输伦茨，拥塞窗口就加倍</strong></p>
+<p><strong>慢启动涨到什么时候是个头呢？</strong></p>
+<p>有一个叫慢启动门限 <code>ssthresh</code> （slow start threshold）状态变量。</p>
+<ul>
+<li>当 <code>cwnd</code> &lt; <code>ssthresh</code> 时，使用慢启动算法。</li>
+<li>当 <code>cwnd</code> &gt;&#x3D; <code>ssthresh</code> 时，就会使用「拥塞避免算法」。</li>
+</ul>
+<h5 id="拥塞避免"><a href="#拥塞避免" class="headerlink" title="拥塞避免"></a>拥塞避免</h5><p>当拥塞窗口 <code>cwnd</code> 「超过」慢启动门限 <code>ssthresh</code> 就会进入拥塞避免算法。</p>
+<p>一般来说 <code>ssthresh</code> 的大小是 <code>65535</code> 字节。</p>
+<p>那么进入拥塞避免算法后，它的规则是：<strong>每当收到一个 ACK 时，cwnd 增加 1&#x2F;cwnd。</strong></p>
+<p>接上前面的慢启动的栗子，现假定 <code>ssthresh</code> 为 <code>8</code>：</p>
+<ul>
+<li>当 8 个 ACK 应答确认到来时，每个确认增加 1&#x2F;8，8 个 ACK 确认 cwnd 一共增加 1，于是这一次能够发送 9 个 <code>MSS</code> 大小的数据，变成了<strong>线性增长。</strong></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173127.jpeg" srcset="/img/loading.gif" lazyload></p>
+<h5 id="快重传"><a href="#快重传" class="headerlink" title="快重传"></a>快重传</h5><p>当网络出现拥塞，也就是会发生数据包重传，重传机制主要有两种：</p>
+<ul>
+<li>超时重传</li>
+<li>快速重传</li>
+</ul>
+<p>当发生了「超时重传」，则就会使用拥塞发生算法。</p>
+<p>这个时候，ssthresh 和 cwnd 的值会发生变化：</p>
+<ul>
+<li><code>ssthresh</code> 设为 <code>cwnd/2</code>，</li>
+<li><code>cwnd</code> 重置为 <code>1</code></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/%E8%B6%85%E6%97%B6%E9%87%8D%E4%BC%A0.jpg" srcset="/img/loading.gif" lazyload alt="拥塞发送 —— 超时重传"></p>
+<p>可以看到发生超时情况的时候又会重新执行慢启动，同时设置慢启动门限为原来的一半。</p>
+<p><strong>快速重传</strong></p>
+<p>当接收方发现丢了一个中间包的时候，发送三次前一个包的 ACK，于是发送端就会快速地重传，不必等待超时再重传。</p>
+<p>TCP 认为这种情况不严重，因为大部分没丢，只丢了一小部分，则 <code>ssthresh</code> 和 <code>cwnd</code> 变化如下：</p>
+<ul>
+<li><code>cwnd = cwnd/2</code> ，也就是设置为原来的一半;</li>
+<li><code>ssthresh = cwnd</code>;</li>
+<li>进入快速恢复算法</li>
+</ul>
+<h5 id="快恢复"><a href="#快恢复" class="headerlink" title="快恢复"></a>快恢复</h5><p>快速重传和快速恢复算法一般同时使用，快速恢复算法是认为，你还能收到 3 个重复 ACK 说明网络也不那么糟糕，所以没有必要像 <code>RTO</code> 超时那么强烈。</p>
+<p>正如前面所说，进入快速恢复之前，<code>cwnd</code> 和 <code>ssthresh</code> 已被更新了：</p>
+<ul>
+<li><code>cwnd = cwnd/2</code> ，也就是设置为原来的一半;</li>
+<li><code>ssthresh = cwnd</code>;</li>
+</ul>
+<p>然后，进入快速恢复算法如下：</p>
+<ul>
+<li>拥塞窗口 <code>cwnd = ssthresh + 3</code> （ 3 的意思是确认有 3 个数据包被收到了）；</li>
+<li>重传丢失的数据包；</li>
+<li>如果再收到重复的 ACK，那么 cwnd 增加 1；</li>
+<li>如果收到新数据的 ACK 后，把 cwnd 设置为第一步中的 ssthresh 的值，原因是该 ACK 确认了新的数据，说明从 duplicated ACK 时的数据都已收到，该恢复过程已经结束，可以回到恢复之前的状态了，也即再次进入拥塞避免状态；</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173703.jpeg" srcset="/img/loading.gif" lazyload></p>
+<p>快速重传和快速恢复</p>
+<p>也就是没有像「超时重传」一夜回到解放前，而是还在比较高的值，后续呈线性增长。</p>
+<p>来一张总图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009173902.png" srcset="/img/loading.gif" lazyload alt="TCP拥塞控制算法"></p>
+<h3 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h3><p><strong>应用层(application-layer）的任务是通过应用进程间的交互来完成特定网络应用。</strong>应用层协议定义的是应</p>
+<p>用进程（进程：主机中正在运行的程序）间的通信和交互的规则。对于不同的网络应用需要不同的应用层协议。在互联网中应用层协议很多，如<strong>域名系统DNS</strong>，支持万维网应用的 <strong>HTTP协议</strong>，支持电子邮件的 <strong>SMTP协议</strong>等等。我们把应用层交互的数据单元称为报文。</p>
+<p><strong>域名系统</strong></p>
+<blockquote>
+<p>域名系统(Domain Name System缩写 DNS，Domain Name被译为域名)是因特网的一项核心服务，它作为可以将域名和IP地址相互映射的一个分布式数据库，能够使人更方便的访问互联网，而不用去记住能够被机器直接读取的IP数串。（百度百科）例如：一个公司的 Web 网站可看作是它在网上的门户，而域名就相当于其门牌地址，通常域名都使用该公司的名称或简称。例如上面提到的微软公司的域名，类似的还有：IBM 公司的域名是 <a target="_blank" rel="noopener" href="http://www.ibm.com/">www.ibm.com</a> 等。</p>
+</blockquote>
+<p><strong>HTTP协议</strong></p>
+<blockquote>
+<p>超文本传输协议（HTTP，HyperText Transfer Protocol)是互联网上应用最为广泛的一种网络协议。所有的 WWW（万维网） 文件都必须遵守这个标准。设计 HTTP 最初的目的是为了提供一种发布和接收 HTML 页面的方法。（百度百科）</p>
+</blockquote>
+<h4 id="DNS协议"><a href="#DNS协议" class="headerlink" title="DNS协议"></a>DNS协议</h4><p>查询过程</p>
+<img src="https://www.isqqy.com/img/post/2019/20190503/dns-parse.png" srcset="/img/loading.gif" lazyload alt="DNS解析过程- is Q的博客| is Q Blog" style="zoom:80%;" />
+
+<p>简单说一下域名解析的解析过程：</p>
+<ol>
+<li><code>主机向本地域名服务器查询使用递归查询</code>，递归查询就是：<strong>如果主句询问的本地域名服务器不知道被查域名的IP地址，那么，本地域名服务器就会以DNS客户的身份，向其他根域名服务器查询，而不是让该主机自己进行下一步查询。</strong></li>
+<li>本地域名服务器想根域名服务器的查询通常是<code>迭代查询</code>：当根域名收到本地域名服务器发出的迭代请求报文后，要么给出IP地址，要么告诉本地域名服务器下一步应该去查询的服务器的IP地址，然后<strong>让本地域名服务器进行后续查询，而不是代替本地域名服务器去查询</strong>。</li>
+</ol>
+<h4 id="面试常问-gt-从输入一个url到页面显示，做了哪些事情？"><a href="#面试常问-gt-从输入一个url到页面显示，做了哪些事情？" class="headerlink" title="面试常问-&gt;从输入一个url到页面显示，做了哪些事情？"></a>面试常问-&gt;从输入一个url到页面显示，做了哪些事情？</h4><ol>
+<li>浏览器查询浏览器中的域名缓存，看看能否找到域名对应的IP地址，如果找到的话就直接进行返回Ip地址进行下一步，否则进行域名解析。</li>
+<li>如果查询到IP地址的话会进行TCP的三次握手建立连接。</li>
+<li>建立连接后发送HTTP请求到服务器。</li>
+<li>服务器处理HTTP请求。</li>
+<li>返回HTTP请求结果（可能是页面，图片，或者json数据，或者其他数据）</li>
+<li>本机浏览器解析页面html文本或者其他文件</li>
+<li>浏览器渲染页面</li>
+<li>请求完成</li>
+</ol>
+<p><strong>域名解析过程：</strong></p>
+<ol>
+<li>查询浏览器缓存的DNS解析记录，如果有，返回，否则进入2</li>
+<li>查询本地缓存，本机Hosts文件，是否配置域名解析，如果有返回，否则进入3</li>
+<li>查询本地服务器是否有缓存，如果有返回，否则进入4</li>
+<li>查询本地DNS解析服务器，查询是否有记录，否则，本地DNS解析服务器去请求根DNS服务器。</li>
+<li>根DNS服务器有解析记录的话就返回给本地DNS服务器，然后DNS服务器返回，否则进行递归查询。</li>
+</ol>
+<h4 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h4><p>HTTP报文的组成部分：</p>
+<ol>
+<li>请求报文<ol>
+<li>请求行</li>
+<li>请求头</li>
+<li>请求主体</li>
+</ol>
+</li>
+<li>响应报文<ol>
+<li>状态行</li>
+<li>消息头</li>
+<li>响应主题</li>
+</ol>
+</li>
+</ol>
+<h5 id="常见状态码"><a href="#常见状态码" class="headerlink" title="常见状态码"></a><strong>常见状态码</strong></h5><ul>
+<li>1xx：指示信息–表示请求已接收，继续处理。</li>
+<li>2xx：成功–表示请求已被成功接收、理解、接受。</li>
+<li>3xx：重定向–要完成请求必须进行更进一步的操作。</li>
+<li>4xx：客户端错误–请求有语法错误或请求无法实现。</li>
+<li>5xx：服务器端错误–服务器未能实现合法的请求。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009193628.png" srcset="/img/loading.gif" lazyload alt="状态码"></p>
+<h5 id="什么是长连接、短连接？"><a href="#什么是长连接、短连接？" class="headerlink" title="什么是长连接、短连接？"></a><strong>什么是长连接、短连接？</strong></h5><p>在HTTP&#x2F;1.0中默认使用短连接。也就是说，客户端和服务器每进行一次HTTP操作，就建立一次连接，任务结束就中断连接。当客户端浏览器访问的某个HTML或其他类型的Web页中包含有其他的Web资源（如JavaScript文件、图像文件、CSS文件等），每遇到这样一个Web资源，浏览器就会重新建立一个HTTP会话。</p>
+<p>而从HTTP&#x2F;1.1起，默认使用长连接，用以保持连接特性。使用长连接的HTTP协议，会在响应头加入这行代码：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">Connection:</span><span class="hljs-meta">keep</span>-alive<br></code></pre></td></tr></table></figure>
+
+<p>在使用长连接的情况下，当一个网页打开完成后，客户端和服务器之间用于传输HTTP数据的TCP连接不会关闭，客户端再次访问这个服务器时，会继续使用这一条已经建立的连接。Keep-Alive不会永久保持连接，它有一个保持时间，可以在不同的服务器软件（如Apache）中设定这个时间。实现长连接需要客户端和服务端都支持长连接。</p>
+<p>HTTP协议的长连接和短连接，实质上是TCP协议的长连接和短连接。</p>
+<h5 id="Cookie的作用是什么-和Session有什么区别？"><a href="#Cookie的作用是什么-和Session有什么区别？" class="headerlink" title="Cookie的作用是什么?和Session有什么区别？"></a>Cookie的作用是什么?和Session有什么区别？</h5><p>Cookie 和 Session都是用来跟踪浏览器用户身份的会话方式，但是两者的应用场景不太一样。</p>
+<p><strong>Cookie 一般用来保存用户信息</strong> 比如①我们在 Cookie 中保存已经登录过得用户信息，下次访问网站的时候页面可以自动帮你登录的一些基本信息给填了；②一般的网站都会有保持登录也就是说下次你再访问网站的时候就不需要重新登录了，这是因为用户登录的时候我们可以存放了一个 Token 在 Cookie 中，下次登录的时候只需要根据 Token 值来查找用户即可(为了安全考虑，重新登录一般要将 Token 重写)；③登录一次网站后访问网站其他页面不需要重新登录。<strong>Session 的主要作用就是通过服务端记录用户的状态。</strong> 典型的场景是购物车，当你要添加商品到购物车的时候，系统不知道是哪个用户操作的，因为 HTTP 协议是无状态的。服务端给特定的用户创建特定的 Session 之后就可以标识这个用户并且跟踪这个用户了。</p>
+<p><strong>Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。</strong></p>
+<p>Cookie 存储在客户端中，而Session存储在服务器上，相对来说 Session 安全性更高。如果要在 Cookie 中存储一些敏感信息，不要直接写入 Cookie 中，最好能将 Cookie 信息加密然后使用到的时候再去服务器端解密。</p>
+<h5 id="HTTP-和-HTTPS-的区别？"><a href="#HTTP-和-HTTPS-的区别？" class="headerlink" title="HTTP 和 HTTPS 的区别？"></a>HTTP 和 HTTPS 的区别？</h5><p><strong>端口</strong> ：HTTP的URL由“http:&#x2F;&#x2F;”起始且默认使用端口80，而HTTPS的URL由“https:&#x2F;&#x2F;”起始且默认使用端口443。</p>
+<p>安全性和资源消耗：</p>
+<p>HTTP协议运行在TCP之上，所有传输的内容都是明文，客户端和服务器端都无法验证对方的身份。HTTPS是运行在SSL&#x2F;TLS之上的HTTP协议，SSL&#x2F;TLS 运行在TCP之上。所有传输的内容都经过加密，加密采用对称加密，但对称加密的密钥用服务器方的证书进行了非对称加密。所以说，HTTP 安全性没有 HTTPS高，但是 HTTPS 比HTTP耗费更多服务器资源。</p>
+<ul>
+<li>对称加密：密钥只有一个，加密解密为同一个密码，且加解密速度快，典型的对称加密算法有DES、AES等；</li>
+<li>非对称加密：密钥成对出现（且根据公钥无法推知私钥，根据私钥也无法推知公钥），加密解密使用不同密钥（公钥加密需要私钥解密，私钥加密需要公钥解密），相对对称加密速度较慢，典型的非对称加密算法有RSA、DSA等。</li>
+</ul>
+<h5 id="Https请求过程："><a href="#Https请求过程：" class="headerlink" title="Https请求过程："></a>Https请求过程：</h5><p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20201009194303.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<blockquote>
+<p>1、浏览器发起往服务器的 443 端口发起请求，请求携带了浏览器支持的加密算法和哈希算法。<br>2、服务器收到请求，选择浏览器支持的加密算法和哈希算法。<br>3、服务器下将数字证书返回给浏览器，这里的数字证书可以是向某个可靠机构申请的，也可以是自制的。<em>（注释：证书包括以下这些内容：1. 证书序列号。2. 证书过期时间。3. 站点组织名。4. 站点DNS主机名。5. 站点公钥。6. 证书颁发者名。7. 证书签名。因为证书就是要给大家用的，所以不需要加密传输）</em><br>4、浏览器进入数字证书认证环节，这一部分是浏览器内置的 TSL 完成的：<br>4.1 首先浏览器会从内置的证书列表中索引，找到服务器下发证书对应的机构，如果没有找到，此时就会提示用户该证书是不是由权威机构颁发，是不可信任的。如果查到了对应的机构，则取出该机构颁发的公钥。<br>4.2 用机构的证书公钥解密得到证书的内容和证书签名，内容包括网站的网址、网站的公钥、证书的有效期等。浏览器会先验证证书签名的合法性（验证过程类似上面 Bob 和 Susan 的通信）。签名通过后，浏览器验证证书记录的网址是否和当前网址是一致的，不一致会提示用户。如果网址一致会检查证书有效期，证书过期了也会提示用户。这些都通过认证时，浏览器就可以安全使用证书中的网站公钥了。<br>4.3 浏览器生成一个随机数 R，并使用网站公钥对 R 进行加密。<br>5、浏览器将加密的 R 传送给服务器。<br>6、服务器用自己的私钥解密得到 R。<br>7、服务器以 R 为密钥使用了对称加密算法加密网页内容并传输给浏览器。<br> 8、浏览器以 R 为密钥使用之前约定好的解密算法获取网页内容。</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="category-chain-item">计算机基础</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">#计算机网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>计算机网络复习</div>
+      <div>https://dlddw.xyz/2022/07/01/计算机网络/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Deepblue</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E7%B4%A2%E5%BC%95/" title="MySQL索引">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL索引</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98/" title="计算机网络八股文">
+                        <span class="hidden-mobile">计算机网络八股文</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

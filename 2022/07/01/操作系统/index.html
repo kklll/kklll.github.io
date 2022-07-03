@@ -1,0 +1,1138 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Deepblue">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="进程多进程如何组织 使用PCB+状态+队列进行组织 进程的状态：新建 就绪 运行 阻塞 终止  使用每个状态的列表进行组织，这样就完成了进程的调用。 多进程如何交替执行？  启动磁盘读写 pCur.state&#x3D;’W’ 把当前进程的PCB放到WaitQueue schedule()  其中schedule函数: 12345schedule()&amp;#123;    &#x2F;&#x2F;其中找到的是进程的进程控">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统相关知识">
+<meta property="og:url" content="https://dlddw.xyz/2022/07/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="Deepblue的博客小站">
+<meta property="og:description" content="进程多进程如何组织 使用PCB+状态+队列进行组织 进程的状态：新建 就绪 运行 阻塞 终止  使用每个状态的列表进行组织，这样就完成了进程的调用。 多进程如何交替执行？  启动磁盘读写 pCur.state&#x3D;’W’ 把当前进程的PCB放到WaitQueue schedule()  其中schedule函数: 12345schedule()&amp;#123;    &#x2F;&#x2F;其中找到的是进程的进程控">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201210153659546.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201217201354719.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/v2-c735fe62ca8684b83d94de95703a677c_720w.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103507462">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103522884">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103644850">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/VirtualMem01.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201218093034628.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/68747470733a2f2f63732d6e6f7465732d313235363130393739362e636f732e61702d6775616e677a686f752e6d7971636c6f75642e636f6d2f65636638616435642d353430332d343862392d623665372d6632653230666665386663612e706e67.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20170813165010609">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20170813165017614">
+<meta property="article:published_time" content="2022-07-01T12:46:25.000Z">
+<meta property="article:modified_time" content="2022-07-03T05:24:38.243Z">
+<meta property="article:author" content="Deepblue">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201210153659546.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>操作系统相关知识 - Deepblue的博客小站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"dlddw.xyz","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>DeepBlue</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="操作系统相关知识"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-01 20:46" pubdate>
+          2022年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">操作系统相关知识</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2022年7月3日 下午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p><strong>多进程如何组织</strong></p>
+<p>使用PCB+状态+队列进行组织</p>
+<p>进程的状态：<code>新建</code> <code>就绪</code> <code>运行</code> <code>阻塞</code> <code>终止</code> </p>
+<p>使用每个状态的列表进行组织，这样就完成了进程的调用。</p>
+<p><strong>多进程如何交替执行？</strong></p>
+<ol>
+<li>启动磁盘读写</li>
+<li>pCur.state&#x3D;’W’</li>
+<li>把当前进程的PCB放到WaitQueue</li>
+<li>schedule()</li>
+</ol>
+<p>其中schedule函数:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">schedule()&#123;<br>    <span class="hljs-comment">//其中找到的是进程的进程控制块PCB</span><br>    pNew=getNext(ReadQueue);<br>    switch_to(pCur,pNew);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <strong>多进程间的影响怎么解决？</strong></p>
+<p>多进程之间进行运行的时候会出现这种情况：</p>
+<p>即线程A使用了地址为0x1000的地址，那么进程B也使用了0x1000的地址，这样的话进程A就可能破坏B进程中的数据导致B程序崩溃，这时候我们就想了一个办法，使用地址变换机构将每个进程之间的地址进行隔离，这样做到多进程之间没有影响。即进行<code>内存空间管理</code></p>
+<p>使用地址映射机构，可以使得每个变量虽然具有相同的逻辑地址，但是被映射到不同的物理内存地址，这样的话使相应的进程没有地址使用上冲突。</p>
+<p><strong>多进程如何进行合作？</strong></p>
+<p>为了防止多进程对共享资源的使用出现竞争导致出现问题，提出了锁的概念，通过使用锁来实现进程间顺序的推进。</p>
+<p><strong>线程为什么使用起来代价比较小？</strong></p>
+<p>因为进程之间的切换回涉及到PCB的切换，<code>进程=资源+指令</code>进程是拥有着操作系统的资源的（内存），因为进程间的切换要涉及到资源映射表的使用，而使用线程的话不需要进行资源映射表的切换使用，所以线程比进程的切换代价更小。</p>
+<p><strong>内核级线程切换过程</strong></p>
+<img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201210153659546.png" srcset="/img/loading.gif" lazyload alt="image-20201210153659546" style="zoom:67%;" />
+
+<ol>
+<li>首先用户通过运行系统调用的函数，比如fock()函数</li>
+<li>fork()函数会 执行Int 0x80 中断处理，0x80是系统调用的入口，以此入口进入int 0x80的系统调用函数</li>
+<li>将用户态程序SS:ip压入到内核栈，然后执行systemCall(systemCall即系统调用的入口函数)</li>
+<li>进入中断的处理函数，将用户态寄存器的信息压栈。然后去执行sys_fork()函数</li>
+<li>执行sys_fork()函数的时候可能阻塞，操作系统就会去调度。</li>
+</ol>
+<h3 id="进程调度"><a href="#进程调度" class="headerlink" title="进程调度"></a>进程调度</h3><p><strong>操作系统中进程调度策略有哪几种？</strong></p>
+<h4 id="批处理系统"><a href="#批处理系统" class="headerlink" title="批处理系统"></a><strong>批处理系统</strong></h4><ul>
+<li><p>FCFS(先来先服务，队列实现，非抢占的)：先请求CPU的进程先分配到CPU</p>
+</li>
+<li><p>SJF(最短作业优先调度算法)：平均等待时间最短，但难以知道下一个CPU区间长度</p>
+</li>
+<li><p><strong>最短剩余时间优先 （SRTN）</strong>最短作业优先的抢占式版本，按剩余运行时间的顺序进行调度。 当一个新的作业到达时，其整个运行时间与当前进程的剩余时间作比较。如果新的进程需要的时间更少，则挂起当前进程，运行新的进程。否则新的进程等待。</p>
+</li>
+</ul>
+<h4 id="交互式系统"><a href="#交互式系统" class="headerlink" title="交互式系统"></a>交互式系统</h4><ul>
+<li>优先级调度算法(可以是抢占的，也可以是非抢占的)：优先级越高越先分配到CPU，相同优先级先到先服务，存在的主要问题是：低优先级进程无穷等待CPU，会导致无穷阻塞或饥饿；解决方案：<strong>老化</strong></li>
+<li>时间片轮转调度算法(可抢占的)：队列中没有进程被分配超过一个时间片的CPU时间，除非它是唯一可运行的进程。如果进程的CPU区间超过了一个时间片，那么该进程就被抢占并放回就绪队列。</li>
+<li>多级队列调度算法：将就绪队列分成多个独立的队列，每个队列都有自己的调度算法，队列之间采用固定优先级抢占调度。其中，一个进程根据自身属性被永久地分配到一个队列中。</li>
+<li>多级反馈队列调度算法：与多级队列调度算法相比，其允许进程在队列之间移动：若进程使用过多CPU时间，那么它会被转移到更低的优先级队列；在较低优先级队列等待时间过长的进程会被转移到更高优先级队列，以防止饥饿发生。</li>
+</ul>
+<h3 id="进程间通信方法"><a href="#进程间通信方法" class="headerlink" title="进程间通信方法"></a>进程间通信方法</h3><ul>
+<li>管道（pipe）及命名管道（named pipe）：管道可用于具有亲缘关系的父子进程间的通信，有名管道除了具有管道所具有的功能外，它还允许无亲缘关系进程间的通信；</li>
+<li>消息队列：消息队列是消息的链接表，它克服了上两种通信方式中信号量有限的缺点，具有写权限得进程可以按照一定得规则向消息队列中添加新信息；对消息队列有读权限得进程则可以从消息队列中读取信息；</li>
+<li>共享内存：可以说这是最有用的进程间通信方式。它使得多个进程可以访问同一块内存空间，不同进程可以及时看到对方进程中对共享内存中数据得更新。这种方式需要依靠某种同步操作，如互斥锁和信号量等；</li>
+<li>信号量：主要作为进程之间及同一种进程的不同线程之间得同步和互斥手段；</li>
+<li>套接字：这是一种更为一般得进程间通信机制，它可用于网络中不同机器之间的进程间通信，应用非常广泛。</li>
+</ul>
+<h2 id="操作系统对内存的管理"><a href="#操作系统对内存的管理" class="headerlink" title="操作系统对内存的管理"></a>操作系统对内存的管理</h2><h3 id="分段管理"><a href="#分段管理" class="headerlink" title="分段管理"></a>分段管理</h3><h4 id="为什么要用分段管理"><a href="#为什么要用分段管理" class="headerlink" title="为什么要用分段管理"></a>为什么要用分段管理</h4><ol>
+<li>方便编程：用户可以把自己的作业按照逻辑关系划分为若干个段，而且每一个段的地址都是从0开始编址的，并且具有自己的段名和长度。逻辑地址是由段名（段号）和段内偏移量（段内地址）组成的。</li>
+<li>信息共享：在实现对程序和数据的共享时，是以信息的逻辑单位为基础的，而段恰恰是这样的逻辑单位（页只是存放信息的物理块，并无实际的含义）。</li>
+<li>信息保护：在实现对信息的保护时，也是以信息的逻辑单位为基础的。</li>
+<li>动态增长：在实际的应用中，有些段（数据段）会随着程序的运行而不断的动态增长，而且事前不知道数据段会增长到多大。</li>
+<li>在运行时动态链接中，主程序会在运行过程中调用某段时才将该段调入内存并进行链接。可见运行时动态链接也要求以段作为内存管理单位。</li>
+<li>方便管理，如果不采用分段管理的话，那么我们运行一个程序要把整个程序装入内存，但是使用分段管理的话我们就可以让不同的段分别进行内存的装入，这样的话我们就可以更加高效的使用内存。</li>
+</ol>
+<h4 id="内存分区的两种方式"><a href="#内存分区的两种方式" class="headerlink" title="内存分区的两种方式"></a>内存分区的两种方式</h4><p>分区即对内存进行区域的划分，其中可变分区需要对内存已经使用的部分和未使用的部分进行记录。其中有两种方法：</p>
+<ol>
+<li><strong>固定分区的方法</strong> 对内存进行等大小的划分，这显然是不合理的，有些应用使用比较大块的内存，有些应用使用比较小的内存，这样划分的话可能导致太耗内存的应用无法装入，小的内存才能运行。</li>
+<li><strong>可变分区的方法</strong> 对内存进行记录，此时需要记录内存的哪些地址已经使用，哪些地址没有被使用。</li>
+</ol>
+<p>当然可变分区还要选择与之相应的算法，比如，有两块大小不同的区域，一个区域是10K，另一个空闲区域是100K，此时来了一个需要内存为7K的程序，应该怎样使用。</p>
+<p><strong>可变分区的问题</strong></p>
+<p><strong>内存碎片</strong> 即现在内存并没有用完，只是在划分的过程中因为不合理的划分导致没有一块连续的内存可以给应用程序使用，如果发生这种情况的话那我们就需要进行内存紧缩，即把使用过的内存忘一起放，留下来一块整体的内存结构，如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201217201354719.png" srcset="/img/loading.gif" lazyload alt="image-20201217201354719"></p>
+<p>但是这样的内存紧缩是非常耗费操作系统资源的，对每段内存的移动还需要修改对应的内存记录的值，此外对数据的移动也是非常耗费时间的，而且在此期间我们不能运行任何的应用程序。这对操作系统是及其不友好的，那么这样的话我们就要使用分页的方法进行内存的分配。</p>
+<h3 id="分页管理"><a href="#分页管理" class="headerlink" title="分页管理"></a>分页管理</h3><p>我们把程序分成<strong>等长</strong>的小块。这些小块叫做“<strong>页（Page）</strong>”，同样内存也被我们分成了和页面同样大小的”<strong>页框（Frame）“，</strong>一个页可以装到一个页框里。在执行程序的时候我们根据一个页表去查找某个页面在内存的某个页框中，由此完成了逻辑到物理的映射。</p>
+<h4 id="多级页表为什么省内存"><a href="#多级页表为什么省内存" class="headerlink" title="多级页表为什么省内存"></a>多级页表为什么省内存</h4><p>做个简单的数学计算，假设虚拟地址空间为32位（即4GB）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/v2-c735fe62ca8684b83d94de95703a677c_720w.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>每个页面映射4KB以及每条页表项占4B：</p>
+<ul>
+<li><p>一级页表：进程需要1M个页表项（<code>4GB / 4KB = 1M, 2^20个页表项</code>），即页表（每个进程都有一个页表）占用4MB（<code>1M * 4B = 4MB</code>）的内存空间。</p>
+</li>
+<li><p>二级页表：一级页表映射4MB（2^22）、二级页表映射4KB，则需要1K个一级页表项（<code>4GB / 4MB = 1K, 2^10个一级页表项</code>）、每个一级页表项对应1K个二级页表项（<code>4MB / 4KB = 1K</code>），这样页表占用4.004MB（<code>1K * 4B + 1K * 1K * 4B = 4.004MB</code>）的内存空间。</p>
+</li>
+</ul>
+<p>如果以这种方式去理解，那么多级页表反而使用了更多的内存空间。</p>
+<p>我们反过来想，每个进程都有4GB的虚拟地址空间，而显然对于大多数程序来说，其使用到的空间远未达到4GB，何必去映射不可能用到的空间呢？</p>
+<p>也就是说，一级页表覆盖了整个4GB虚拟地址空间，但如果某个一级页表的页表项没有被用到，也就不需要创建这个页表项对应的二级页表了，即可以在需要时才创建二级页表。做个简单的计算，假设只有20%的一级页表项被用到了，那么页表占用的内存空间就只有0.804MB（<code>1K * 4B + 0.2 * 1K * 1K * 4B = 0.804MB</code>）</p>
+<h3 id="段页内存管理"><a href="#段页内存管理" class="headerlink" title="段页内存管理"></a>段页内存管理</h3><p>段页式存储组织是分段式和分页式结合的存储组织方法，这样可充分利用分段管理和分页管理的优点。</p>
+<p>　 (1) 用分段方法来分配和管理虚拟存储器。程序的地址空间按逻辑单位分成基本独立的段，而每一段有自己的段名，再把每段分成固定大小的若干页。</p>
+<p>   (2) 用分页方法来分配和管理实存。即把整个主存分成与上述页大小相等的存储块，可装入作业的任何一页。程序对内存的调入或调出是按页进行的。但它又可按段实现共享和保护。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103507462" srcset="/img/loading.gif" lazyload alt="地址空间"></p>
+<p>(3)  逻辑地址结构。一个逻辑地址用三个参数表示：段号S；页号P；页内地址d。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103522884" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>4）段表、页表、段表地址寄存器。为了进行地址转换，系统为每个作业建立一个段表，并且要为该作业段表中的每一个段建立一个页表。系统中有一个段表地址寄存器来指出作业的段表起始地址和段表长度。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20130519103644850" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h3><p>虚拟内存的目的是为了让物理内存扩充成更大的逻辑内存，从而让程序获得更多的可用内存。</p>
+<p>为了更好的管理内存，操作系统将内存抽象成地址空间。每个程序拥有自己的地址空间，这个地址空间被分割成多个块，每一块称为一页。这些页被映射到物理内存，但不需要映射到连续的物理内存，也不需要所有页都必须在物理内存中。当程序引用到不在物理内存中的页时，由硬件执行必要的映射，将缺失的部分装入物理内存并重新执行失败的指令。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/VirtualMem01.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="页面如何换入"><a href="#页面如何换入" class="headerlink" title="页面如何换入"></a>页面如何换入</h4><p>对于用户而言，用户看到的是一个整体的内存入4G，而且用户可以随便访问4G内存空间的任意位置；但是对于真实的物理内存可能只有1G大小，当用户访问内存时，如果内存里面有需要的内容，就直接访问；如果没有，就去磁盘上查找，然后再把需要找到的数据，再将这些数据载入到内存中供用户使用。那么在这个过程中就需要把磁盘上的数据写到内存里面（换入），也需要把内存中的一些数据写回磁盘上（换出）。</p>
+<p>请求调页（换入）</p>
+<p>当用户访问一个页时，MMU回去查询一个操作系统维护的页表，看看用户访问的页是否存在于内存当中，如果存在，就直接调用；如果没有，就需要开启中断，执行页错误处理程序，在磁盘中找到相应的数据页，并在内存中找到一块空闲，将其载入进来，然后中断返回，执行用户程序，在去访问内存中用户需要的页。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/image-20201218093034628.png" srcset="/img/loading.gif" lazyload alt="image-20201218093034628"></p>
+<h4 id="页面换出"><a href="#页面换出" class="headerlink" title="页面换出"></a>页面换出</h4><p>当我们不断地将页面换入内存当中，内存肯定会不足的，我们需要选择一些页面进行换出，为新的数据腾出空间，但是我们应该选择那些页面换出呢？以下主要讨论一些常用的换出策略。</p>
+<h5 id="FIFO：先进先出页面置换"><a href="#FIFO：先进先出页面置换" class="headerlink" title="FIFO：先进先出页面置换"></a><strong>FIFO：先进先出页面置换</strong></h5><table>
+<thead>
+<tr>
+<th>访问页面</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>3</th>
+<th>0</th>
+<th>4</th>
+<th>2</th>
+<th>3</th>
+<th>0</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>1</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理块1</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+</tr>
+<tr>
+<td>物理块2</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>1</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>物理块3</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>1</td>
+<td></td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>2</td>
+<td></td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>缺页否</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td></td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td></td>
+<td>√</td>
+<td></td>
+<td>√</td>
+</tr>
+</tbody></table>
+<p>优先淘汰最早进入内存的页面，亦即在内存中驻留时间最久的页面。该算法实现简单，只需把调入内存的页面根据先后次序链接成队列，设置一个指针总指向最早的页面。但该算法与进程实际运行时的规律不适应，因为在进程中，有的页面经常被访问。</p>
+<h5 id="最近最久未使用-LRU-置换算法"><a href="#最近最久未使用-LRU-置换算法" class="headerlink" title="最近最久未使用(LRU)置换算法"></a><strong>最近最久未使用(LRU)置换算法</strong></h5><table>
+<thead>
+<tr>
+<th>访问页面</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>3</th>
+<th>0</th>
+<th>4</th>
+<th>2</th>
+<th>3</th>
+<th>0</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>1</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理块1</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>2</td>
+<td></td>
+<td>2</td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td></td>
+<td>1</td>
+<td></td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>物理块2</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>物理块3</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>1</td>
+<td></td>
+<td>3</td>
+<td></td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td></td>
+<td></td>
+<td>2</td>
+<td></td>
+<td>2</td>
+<td></td>
+<td>7</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>缺页否</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td></td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>选择最近最长时间未访问过的页面予以淘汰，它认为过去一段时间内未访问过的页面，在最近的将来可能也不会被访问。该算法为每个页面设置一个访问字段，来记录页面自上次被访问以来所经历的时间，淘汰页面时选择现有页面中值最大的予以淘汰。</p>
+<h5 id="最佳置换算法-OPT"><a href="#最佳置换算法-OPT" class="headerlink" title="最佳置换算法(OPT)"></a><strong>最佳置换算法(OPT)</strong></h5><p>最佳(Optimal, OPT)置换算法所选择的被淘汰页面将是以后永不使用的，或者是在最长时间内不再被访问的页面,这样可以保证获得最低的缺页率。但由于人们目前无法预知进程在内存下的若千页面中哪个是未来最长时间内不再被访问的，因而该算法无法实现。</p>
+<table>
+<thead>
+<tr>
+<th>访问页面</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>3</th>
+<th>0</th>
+<th>4</th>
+<th>2</th>
+<th>3</th>
+<th>0</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>2</th>
+<th>0</th>
+<th>1</th>
+<th>7</th>
+<th>0</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理块1</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+<td>2</td>
+<td></td>
+<td>2</td>
+<td></td>
+<td>2</td>
+<td></td>
+<td></td>
+<td>2</td>
+<td></td>
+<td></td>
+<td>2</td>
+<td></td>
+<td></td>
+<td></td>
+<td>7</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>物理块2</td>
+<td></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>4</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>物理块3</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>1</td>
+<td></td>
+<td>3</td>
+<td></td>
+<td>3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>缺页否</td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td></td>
+<td>√</td>
+<td></td>
+<td></td>
+<td>√</td>
+<td></td>
+<td></td>
+<td>√</td>
+<td></td>
+<td></td>
+<td></td>
+<td>√</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h5 id="第二次机会算法-SCR"><a href="#第二次机会算法-SCR" class="headerlink" title="第二次机会算法(SCR)"></a><strong>第二次机会算法(SCR)</strong></h5><p>FIFO 算法可能会把经常使用的页面置换出去，为了避免这一问题，对该算法做一个简单的修改：</p>
+<p>当页面被访问 (读或写) 时设置该页面的 R 位为 1。需要替换的时候，检查最老页面的 R 位。如果 R 位是 0，那么这个页面既老又没有被使用，可以立刻置换掉；如果是 1，就将 R 位清 0，并把该页面放到链表的尾端，修改它的装入时间使它就像刚装入的一样，然后继续从链表的头部开始搜索。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/68747470733a2f2f63732d6e6f7465732d313235363130393739362e636f732e61702d6775616e677a686f752e6d7971636c6f75642e636f6d2f65636638616435642d353430332d343862392d623665372d6632653230666665386663612e706e67.png" srcset="/img/loading.gif" lazyload alt="68747470733a2f2f63732d6e6f7465732d313235363130393739362e636f732e61702d6775616e677a686f752e6d7971636c6f75642e636f6d2f65636638616435642d353430332d343862392d623665372d6632653230666665386663612e706e67"></p>
+<p>我们用循环队列组织这个结构更加合适</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20170813165010609" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>对于SCR算法，有一个问题，就是程序是具有局部性的，所以经常出现在替换间期内每一页都被访问过，当需要替换时，每一页的引用位都是1，这样每次被替换出去的就是指针所指的那一页，从而退化成了FIFO算法。</p>
+<h5 id="Clock算法"><a href="#Clock算法" class="headerlink" title="Clock算法"></a>Clock算法</h5><p>SCR算法中的问题原因就是替换期间比较长，在这个期间内每页都被访问了，那么解决方式就是引入一根更新指针，每隔一段时间，把所有页的引用位设置为0，通过这样的防止SCR算法的退化。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/kklll/Resources@master/pics/20170813165017614" srcset="/img/loading.gif" lazyload alt="img"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="category-chain-item">计算机基础</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>操作系统相关知识</div>
+      <div>https://dlddw.xyz/2022/07/01/操作系统/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Deepblue</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E9%9B%B6%E6%8B%B7%E8%B4%9D/" title="零拷贝相关">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">零拷贝相关</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/01/%E7%B4%A2%E5%BC%95/" title="MySQL索引">
+                        <span class="hidden-mobile">MySQL索引</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
